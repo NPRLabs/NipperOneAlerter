@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- drawing/borderstationfreqslow.xml -->
+<!-- This is the attractive oval with a black border to use when the receiver is slow-scanning FM stations, looking for our beacon. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle" >
+  <corners android:radius="20dp"/> 
+   <padding android:left="5dp" android:right="10dp" android:top="2dp" android:bottom="2dp"/>
+   <stroke android:width="2dip" android:color="#000000"/>
+   <solid android:color="@color/defaultBackgroundSlowScan"/>    
+
+</shape>

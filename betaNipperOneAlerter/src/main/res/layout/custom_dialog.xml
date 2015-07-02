@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/alert_layout_left"
+        android:layout_width="210dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="left"
+        android:layout_weight="1">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Category"
+            android:id="@+id/lbl_category"
+            android:layout_marginTop="75dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:id="@+id/txt_category"
+            android:text="waiting"
+            android:layout_below="@+id/lbl_category"
+            android:layout_centerHorizontal="true" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Alert Help"
+            android:id="@+id/btn_alert_help"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="75dp" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/center_layout"
+        android:layout_width="400dp"
+        android:layout_height="match_parent"
+        android:layout_weight="2">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No Active Alerts"
+            android:textSize="@dimen/AlertTextSize"
+            android:textStyle="bold|italic"
+            android:id="@+id/txt_banner"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="41dp" />
+
+        <ImageView
+            android:id="@+id/icon_alert"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Icon for the Alert"
+            android:layout_gravity="bottom|center_horizontal"
+            android:src="@drawable/canada"
+            android:layout_below="@+id/txt_banner"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="50dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Medium Text"
+            android:id="@+id/txt_action"
+            android:textSize="@dimen/defaultFontSizetxtCurrentSel"
+            android:layout_alignTop="@+id/txt_sentence_connector"
+            android:layout_toLeftOf="@+id/txt_sentence_connector" />
+
+        <TextView
+            android:id="@+id/txt_sentence_connector"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Medium Text"
+            android:layout_gravity="center_horizontal"
+            android:textSize="@dimen/defaultFontSizetxtCurrentSel"
+            android:layout_below="@+id/icon_alert"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="71dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Medium Text"
+            android:id="@+id/txt_urgency"
+            android:layout_gravity="right"
+            android:textSize="@dimen/defaultFontSizetxtCurrentSel"
+            android:layout_alignTop="@+id/txt_sentence_connector"
+            android:layout_toRightOf="@+id/txt_sentence_connector" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="View Full Alert"
+            android:id="@+id/btn_view_full_alert"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/alert_layout_right"
+        android:layout_width="210dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="right"
+        android:layout_weight="1">
+
+
+        <TextView
+            android:id="@+id/lbl_certainty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Certainty"
+            android:textSize="@dimen/defaultFontSizelblFIPShint"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="75dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Medium Text"
+            android:id="@+id/txt_certainty"
+            android:layout_below="@+id/lbl_certainty"
+            android:layout_centerHorizontal="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Severity"
+            android:id="@+id/lbl_severity"
+            android:layout_centerVertical="true"
+            android:layout_alignRight="@+id/btn_ok" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Medium Text"
+            android:id="@+id/txt_severity"
+            android:layout_below="@+id/lbl_severity"
+            android:layout_centerHorizontal="true" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="OK"
+            android:id="@+id/btn_ok"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="75dp" />
+
+    </RelativeLayout>
+
+</LinearLayout>

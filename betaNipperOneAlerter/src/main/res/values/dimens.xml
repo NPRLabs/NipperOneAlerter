@@ -1,0 +1,18 @@
+<resources>
+
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <!-- Default Font sizes, Main Activity -->
+    <dimen name="defaultFontSizetxtMessage">20sp</dimen>
+    <dimen name="defaultFontSizetxtStationCall">30sp</dimen>
+    <dimen name="defaultFontSizetxtStationFreq">26sp</dimen>
+
+    <!-- Default Font sizes, Cities Activity -->
+    <dimen name="defaultFontSizelblFIPShint">24sp</dimen>
+    <dimen name="defaultFontSizetxtCurrentSel">30sp</dimen>
+    <dimen name="smallFontSizetxtCurrentSel">20sp</dimen>
+    <dimen name="AlertTextSize">45sp</dimen>
+
+</resources>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="org.prss.nprlabs.nipperonealerter"
+    android:versionCode="1"
+    android:versionName="0.9.21gamma">
+
+    <uses-sdk 
+        android:minSdkVersion="12"
+        android:targetSdkVersion="16"/>
+
+    <uses-feature android:name="android.hardware.usb.host" />
+
+    <!-- <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> -->
+   
+   <application
+        tools:replace="android:label"
+        android:icon="@drawable/nprlabslogo"
+        android:label="@string/app_title"
+        android:allowBackup="true" 
+        android:theme="@android:style/Theme.Holo"
+        android:logo="@drawable/nprlabslogo">
+        
+        <!-- Our main activity for the alerting and interface to the NipperOne receiver -->  
+        <activity
+            android:name="org.nprlabs.nipperone.main.NipperOneAndroid"
+            android:screenOrientation="landscape"
+            android:launchMode="singleInstance" >
+            
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+            
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/device_filter" />
+ 
+        </activity>
+        
+        <!-- This is the bulk of the preference activity -->
+        <activity
+            android:name="org.nprlabs.nipperone.activities.SetPreferenceActivity"
+            android:label="Settings and Help for NipperOneAlerter     (Touch the back arrow to return)" 
+            android:screenOrientation="landscape" 
+            android:launchMode="standard" >
+        </activity>
+        
+        <!-- This is the Wheel widget activity for the user to select their State and County -->
+        <activity
+       		android:name="org.nprlabs.nipperone.activities.CitiesActivity"
+        	android:label="Set your location so the receiver will respond to alerts in your area">
+        	<intent-filter>  
+                <action android:name="org.prss.nprlabs.nipperonealerter.CitiesActivity"/>  
+                <category android:name="android.intent.category.DEFAULT" />  
+            </intent-filter> 
+        </activity>
+ 
+        
+     </application>
+            
+
+
+</manifest>
+

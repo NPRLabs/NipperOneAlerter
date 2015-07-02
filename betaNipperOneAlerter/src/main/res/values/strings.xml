@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_title">Beta-NipperOne Alerter</string>
+    <string name="app_name">NipperOne Alerter</string>
+    <string name="title_activity_nipper_one">Beta-NipperOneActivity</string>
+    <string name="title_activity_nipper_one_alerter">NipperOneAlerterActivity</string>
+    <!-- 
+		The following are the strings used in the Title Bar menu 
+     -->
+    
+    <string name="action_settings">Settings...</string>
+    <string name="action_help">Help</string>
+    <string name="action_about">About</string>
+    <string name="action_clearscreen"> Clear the Screen </string>
+    <string name="action_restore_receiver_defaults">Restore Receiver Default Configuration</string>
+    <!-- 
+    	The following are the strings used by the status box in the station bar 
+     -->
+    <string name="defaultTextQuickScan">Scanning quickly for all radio stations</string>
+    <string name="defaultTextSlowScan">Scanning for our local station</string>
+    <string name="defaultTextStationFound">Tuned: </string>
+    <string name="disconnected_from_receiver">DISCONNECTED FROM RECEIVER</string>
+    <string name="alert">ALERT</string>
+    <string name="alarm">ALARM</string>
+
+
+
+    <!-- This is the check box that selects the text gathering method. -->
+    <string name="inline_preferences">Advanced Settings for the Nipper One Alerter app</string>
+    <string name="title_checkbox_preference">Allow alert messages to have line breaks and formatting</string>
+    <string name="summary_checkbox_preference">"Selecting this will enable alerting messages to have line breaks.\nSelect this if NPR Labs asks you to select it."</string>
+    
+    
+    <string name="launch_preferences">Get more information about the project</string>
+
+    <string name="title_list_preference">Choose the colors for the Alert Message Display</string>
+    <string name="summary_list_preference">""You can pick different foreground and background colors\nthat are used when an alert message arrives"</string>
+    <string name="dialog_title_list_preference">"Touch a Color Combination\n(there are 18 combinations")</string>
+    <string name="title_screen_preference">Screen preference</string>
+    
+
+    <string name="title_intent_preference">Go to the Web site for this Accessible Alerting Project</string>
+    <string name="summary_intent_preference">This opens a web browser and takes you to the NPR Labs web site for this project.</string>
+<!-- 
+    <string name="title_my_preference">My preference</string>
+    <string name="summary_my_preference">This is a custom counter preference</string>
+    <string name="title_advanced_toggle_preference">Haunted preference</string>
+    <string name="summary_on_advanced_toggle_preference">I\'m on! :)</string>
+    <string name="summary_off_advanced_toggle_preference">I\'m off! :(</string>
+    <string name="title_parent_preference">Parent checkbox preference</string>
+    <string name="summary_parent_preference">This is visually a parent</string>
+    <string name="title_child_preference">Child checkbox preference</string>
+    <string name="summary_child_preference">This is visually a child</string>
+ -->    
+    <!-- 
+         END Strings used in our preferences fragment 
+    -->
+    
+    <!-- 
+    	The following is the HELP text that is displayed to the user when Action Bar Help is selected.
+     -->
+    <string name="help_text">"-----| NipperOneAlerter HELP |-----\nThis Android app was developed during the\nAccessible CAP RDS Demonstration Project\nfor U.S. Gulf Coast States\nU.S. Department of Homeland Security\nScience and Technology Directorate\nby NPR Labs  2013-2014   alerting@npr.org"</string>
+     
+     <!-- 
+         END Strings used in HELP
+    -->
+    
+    <!-- 
+    	The following is the Hint text that is displayed to the user when certain TextViews are 'empty'.
+     -->
+    <string name="hinttxtAlertType">(Waiting&#8230;)</string>
+    <string name="hinttxtEvent">(Waiting for the Event type&#8230;)</string>
+    <string name="hinttxtCertainty">(Waiting&#8230;)</string>
+    <string name="hinttxtSeverity">(Waiting&#8230;)</string>
+    <string name="hinttxtUrgency">(Waiting&#8230;)</string>
+    <string name="hinttxtCategory">(Waiting&#8230;)</string>
+    <string name="hinttxtResponse">(Waiting&#8230;)</string>
+    <string name="hinttxtDuration">(Waiting&#8230;)</string>
+    
+    <!--
+    	The following is the label text that are above the EAS Short codes 
+     -->
+    <string name="lblCertainty">Event Certainty:</string>
+    <string name="lblSeverity">Event Severity:</string>
+    <string name="lblUrgency">Event Urgency:</string>
+    <string name="lblCategory">Event Category:</string>
+    <string name="lblDuration">Message valid for:</string>
+    
+    <!--
+    	The following is the label text for the FIPS selector hints and help 
+     -->
+    <string name="lblFIPShint">"To work correctly, the NipperOne receiver must know where you are.\nPlease select your State, then select the County or Parish that you are in,\nthen press 'Save This Location'"</string>
+
+    <string name="endOfTrans">"End of Transmission"</string>
+    <string name="newAlert">"New Alert"</string>
+    <string name="updateAlert">"Update Previous Alert"</string>
+    <string name="cancelAlert">"Cancel Previous Alert"</string>
+    <string name="unassignedPlaceholder">"Unassigned"</string>
+    <string name="privateData">"Private Data"</string>
+    <string name="notSet">"Not Set"</string>
+    <string name="observed">"Observed"</string>
+    <string name="likely">"Likely"</string>
+    <string name="possible">"Possible"</string>
+    <string name="unlikely">"Unlikely"</string>
+    <string name="unknown">"Unknown"</string>
+
+
+    <string name="adrString">"Administrative Message"</string>
+    <string name="avaString">"Avalanche Watch"</string>
+    <string name="avwString">"Avalanche Warning"</string>
+    <string name="bzwString">"Blizzard Warning"</string>
+    <string name="caeString">"Child Abduction Emergency"</string>
+    <string name="cdwString">"Civil Danger Warning"</string>
+    <string name="cemString">"Civil Emergency Message"</string>
+    <string name="cfaString">"Coastal Flood Watch"</string>
+    <string name="cfwString">"Coastal Flood Warning"</string>
+    <string name="dmoString">"Demonstration Message"</string>
+    <string name="dswString">"Dust Storm Warning"</string>
+    <string name="eanString">"Emergency Action Notification"</string>
+    <string name="eqwString">"Earthquake Warning"</string>
+    <string name="eviString">"Evacuation Immediate"</string>
+    <string name="ffaString">"Flash Flood Watch"</string>
+    <string name="ffwString">"Flash Flood Warning"</string>
+    <string name="flaString">"Flood Watch"</string>
+    <string name="flwString">"Flood Warning"</string>
+    <string name="frwString">"Fire Warning"</string>
+    <string name="hmwString">"Hazardous Materials Warning"</string>
+    <string name="huaString">"Hurricane Watch"</string>
+    <string name="huwString">"Hurricane Warning"</string>
+    <string name="hwwString">"High Wind Warning"</string>
+    <string name="laeString">"Local Area Emergency"</string>
+    <string name="lewString">"Law Enforcement Warning"</string>
+    <string name="natString">"National Audible Test"</string>
+    <string name="nicString">"National Information Center"</string>
+    <string name="nmnString">"Network Message Notification"</string>
+    <string name="nptString">"National Periodic Test"</string>
+    <string name="nuwString">"Nuclear Power Plant Warning"</string>
+    <string name="rhwString">"Radiological Hazard Warning"</string>
+    <string name="rmtString">"Required Monthly Test"</string>
+    <string name="rwtString">"Required Weekly Test"</string>
+    <string name="smwString">"Special Marine Warning"</string>
+    <string name="spwString">"Shelter In-place Warning"</string>
+    <string name="svaString">"Severe Thunderstorm Watch"</string>
+    <string name="svrString">"Severe Thunderstorm Warning"</string>
+    <string name="toaString">"Tornado Watch"</string>
+    <string name="toeString">"911 Telephone Outage Emergency"</string>
+    <string name="torString">"Tornado Warning"</string>
+    <string name="traString">"Tropical Storm Watch"</string>
+    <string name="trwString">"Tropical Storm Warning"</string>
+    <string name="tsaString">"Tsunami Watch"</string>
+    <string name="tswString">"Tsunami Warning"</string>
+    <string name="vowString">"Volcano Warning"</string>
+    <string name="wswString">"Winter Storm Watch"</string>
+
+
+    <string name="nprlabs">NPRLabs</string>
+    <string name="btnMsgArchive">Message Archive</string>
+    <string name="btnSettingsSC">Settings Shortcut</string>
+
+</resources>

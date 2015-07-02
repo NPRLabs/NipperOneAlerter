@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="black_overlay">#66000000</color>
+    <color name="kindagray">#ffdddddd</color>
+    <color name="defaultBackgroundSlowScan">#ffffff99</color>
+    <color name="defaultBackgroundQuickScan">#ffffff00</color>
+    <color name="defaultBackgroundRelStationLayout">#ffeeeeee</color>
+    <!-- Why not take ALARM with RED background and White text and ALERT with Navy background and white text? -->
+    <color name="defaultBackgroundAlertIndicator">#000080</color>
+    <color name="defaultTextColorAlertIndicator">#ffffff</color>
+    
+    <color name="defaultBackgroundAlarmIndicator">#ff0000</color>
+    <color name="defaultTextColorAlarmIndicator">#ffffff</color>
+    
+    <color name="defaultBackgroundMessageNormal">#ff000000</color>
+    <color name="defaultBackgroundMessageAlarm">#ffffff00</color>
+    <color name="defaultTextColorMessageNormal">#ffffffff</color>
+    <color name="defaultTextColorMessageAlarm">#ff000000</color>
+    <color name="defaultBackgroundHelpText">#ffffffff</color>
+    <color name="defaultTextColorHelpText">#ff000000</color>
+    <color name="defaultTextColorFIPShint">#ffffff00</color>
+    
+    <!-- @TODO  FIX THESE COLORS! -->
+    <color name="user1foreColor">#ffffffff</color>
+    <color name="user1backColor">#ffffff00</color>
+    <color name="user2foreColor">#ffffffff</color>
+    <color name="user2backColor">#00000000</color>
+    <color name="user3foreColor">#ffffff00</color>
+    <color name="user3backColor">#ffffffff</color>
+    <color name="user4foreColor">#ff000000</color>
+    <color name="user4backColor">#ffffffff</color>
+    <color name="user5foreColor">#ff000000</color>
+    <color name="user5backColor">#00000000</color>
+                    
+    
+    <!-- These are colors for the EAS Shortcodes on top of a layout of a Navy Blue 0, 0, 128 
+         Note this has only RGB and no alpha.
+         Source: http://en.wikipedia.org/wiki/Navy_blue                           -->
+    <color name="defaultEASShortCodesBorder">#000080</color>
+    <color name="defaultEASShortCodesLabels">#ffffff</color>
+    
+</resources>

@@ -1,0 +1,622 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+        <string-array name="entries_list_preference">
+        <item>1. Black Font on Yellow Background</item>
+        <item>2. Black Font on White Background</item>
+        <item>3. Yellow Font on Black Background</item>  
+        <item>4. White Font on Black Background</item>  
+		<item>5. Blue Font on White Background</item>  
+		<item>6. White Font on Blue Background</item>  
+		<item>7. Blue Font on Yellow Background</item>  
+		<item>8. Yellow Font on Blue Background</item>  
+		<item>9. Green Font on White Background</item>  
+		<item>10. White Font on Green Background</item>  
+		<item>11. Gold Font on White Background</item>  
+		<item>12. White Font on Gold Background</item>  
+		<item>13. Gold Yellow Font on Yellow Background</item>  
+		<item>14. Yellow Font on Gold Background</item>  
+		<item>15. Red Font on White Background</item>  
+		<item>16. White Font on Red Background</item>  
+		<item>17. Red Font on Yellow Background</item>  
+		<item>18. Yellow Font on Red Background</item>  
+                                                
+        
+        </string-array>
+
+    <string-array name="entryvalues_list_preference">
+        <item>1</item>
+        <item>1</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>15</item>
+        <item>16</item>
+        <item>17</item>
+        <item>18</item>
+        </string-array>
+    
+    <string-array name="USStates">
+        <item>Other Alert area</item>
+        <item>ALL Alerts</item>
+        <item>Alabama</item>
+        <item>Florida</item>
+        <item>Louisiana</item>
+        <item>Mississippi</item>
+        <item>Texas</item>
+    </string-array>
+    
+    
+    <string-array name="CountyOther">
+        <item>Other Alert Area,US,000000</item>
+    </string-array>
+    
+    <string-array name="CountyNational">
+        <item>ALL USA Counties,US,000000</item>
+    </string-array>
+    
+    <string-array name="CountyAlabama">
+		<item>ALL AL Counties,US,001000</item>
+		<item>Autauga,AL,001001</item>
+		<item>Baldwin,AL,001003</item>
+		<item>Barbour,AL,001005</item>
+		<item>Bibb,AL,001007</item>
+		<item>Blount,AL,001009</item>
+		<item>Bullock,AL,001011</item>
+		<item>Butler,AL,001013</item>
+		<item>Calhoun,AL,001015</item>
+		<item>Chambers,AL,001017</item>
+		<item>Cherokee,AL,001019</item>
+		<item>Chilton,AL,001021</item>
+		<item>Choctaw,AL,001023</item>
+		<item>Clarke,AL,001025</item>
+		<item>Clay,AL,001027</item>
+		<item>Cleburne,AL,001029</item>
+		<item>Coffee,AL,001031</item>
+		<item>Colbert,AL,001033</item>
+		<item>Conecuh,AL,001035</item>
+		<item>Coosa,AL,001037</item>
+		<item>Covington,AL,001039</item>
+		<item>Crenshaw,AL,001041</item>
+		<item>Cullman,AL,001043</item>
+		<item>Dale,AL,001045</item>
+		<item>Dallas,AL,001047</item>
+		<item>DeKalb,AL,001049</item>
+		<item>Elmore,AL,001051</item>
+		<item>Escambia,AL,001053</item>
+		<item>Etowah,AL,001055</item>
+		<item>Fayette,AL,001057</item>
+		<item>Franklin,AL,001059</item>
+		<item>Geneva,AL,001061</item>
+		<item>Greene,AL,001063</item>
+		<item>Hale,AL,001065</item>
+		<item>Henry,AL,001067</item>
+		<item>Houston,AL,001069</item>
+		<item>Jackson,AL,001071</item>
+		<item>Jefferson,AL,001073</item>
+		<item>Lamar,AL,001075</item>
+		<item>Lauderdale,AL,001077</item>
+		<item>Lawrence,AL,001079</item>
+		<item>Lee,AL,001081</item>
+		<item>Limestone,AL,001083</item>
+		<item>Lowndes,AL,001085</item>
+		<item>Macon,AL,001087</item>
+		<item>Madison,AL,001089</item>
+		<item>Marengo,AL,001091</item>
+		<item>Marion,AL,001093</item>
+		<item>Marshall,AL,001095</item>
+		<item>Mobile,AL,001097</item>
+		<item>Monroe,AL,001099</item>
+		<item>Montgomery,AL,001101</item>
+		<item>Morgan,AL,001103</item>
+		<item>Perry,AL,001105</item>
+		<item>Pickens,AL,001107</item>
+		<item>Pike,AL,001109</item>
+		<item>Randolph,AL,001111</item>
+		<item>Russell,AL,001113</item>
+		<item>St. Clair,AL,001115</item>
+		<item>Shelby,AL,001117</item>
+		<item>Sumter,AL,001119</item>
+		<item>Talladega,AL,001121</item>
+		<item>Tallapoosa,AL,001123</item>
+		<item>Tuscaloosa,AL,001125</item>
+		<item>Walker,AL,001127</item>
+		<item>Washington,AL,001129</item>
+		<item>Wilcox,AL,001131</item>
+		<item>Winston,AL,001133</item>
+	</string-array>
+	
+	<string-array name="CountyFlorida">
+		<item>ALL FL Counties,US,012000</item>
+	    <item>Alachua,FL,012001</item>
+		<item>Baker,FL,012003</item>
+		<item>Bay,FL,012005</item>
+		<item>Bradford,FL,012007</item>
+		<item>Brevard,FL,012009</item>
+		<item>Broward,FL,012011</item>
+		<item>Calhoun,FL,012013</item>
+		<item>Charlotte,FL,012015</item>
+		<item>Citrus,FL,012017</item>
+		<item>Clay,FL,012019</item>
+		<item>Collier,FL,012021</item>
+		<item>Columbia,FL,012023</item>
+		<item>DeSoto,FL,012027</item>
+		<item>Dixie,FL,012029</item>
+		<item>Duval,FL,012031</item>
+		<item>Escambia,FL,012033</item>
+		<item>Flagler,FL,012035</item>
+		<item>Franklin,FL,012037</item>
+		<item>Gadsden,FL,012039</item>
+		<item>Gilchrist,FL,012041</item>
+		<item>Glades,FL,012043</item>
+		<item>Gulf,FL,012045</item>
+		<item>Hamilton,FL,012047</item>
+		<item>Hardee,FL,012049</item>
+		<item>Hendry,FL,012051</item>
+		<item>Hernando,FL,012053</item>
+		<item>Highlands,FL,012055</item>
+		<item>Hillsborough,FL,012057</item>
+		<item>Holmes,FL,012059</item>
+		<item>Indian River,FL,012061</item>
+		<item>Jackson,FL,012063</item>
+		<item>Jefferson,FL,012065</item>
+		<item>Lafayette,FL,012067</item>
+		<item>Lake,FL,012069</item>
+		<item>Lee,FL,012071</item>
+		<item>Leon,FL,012073</item>
+		<item>Levy,FL,012075</item>
+		<item>Liberty,FL,012077</item>
+		<item>Madison,FL,012079</item>
+		<item>Manatee,FL,012081</item>
+		<item>Marion,FL,012083</item>
+		<item>Martin,FL,012085</item>
+		<item>Miami-Dade,FL,012086</item>
+		<item>Monroe,FL,012087</item>
+		<item>Nassau,FL,012089</item>
+		<item>Okaloosa,FL,012091</item>
+		<item>Okeechobee,FL,012093</item>
+		<item>Orange,FL,012095</item>
+		<item>Osceola,FL,012097</item>
+		<item>Palm Beach,FL,012099</item>
+		<item>Pasco,FL,012101</item>
+		<item>Pinellas,FL,012103</item>
+		<item>Polk,FL,012105</item>
+		<item>Putnam,FL,012107</item>
+		<item>St. Johns,FL,012109</item>
+		<item>St. Lucie,FL,012111</item>
+		<item>Santa Rosa,FL,012113</item>
+		<item>Sarasota,FL,012115</item>
+		<item>Seminole,FL,012117</item>
+		<item>Sumter,FL,012119</item>
+		<item>Suwannee,FL,012121</item>
+		<item>Taylor,FL,012123</item>
+		<item>Union,FL,012125</item>
+		<item>Volusia,FL,012127</item>
+		<item>Wakulla,FL,012129</item>
+		<item>Walton,FL,012131</item>
+		<item>Washington,FL,012133</item>
+	</string-array>
+	
+	<string-array name="CountyLouisiana">
+		<item>ALL LA Parishes,US,022000</item>
+	    <item>Acadia,LA,022001</item>
+		<item>Allen,LA,022003</item>
+		<item>Ascension,LA,022005</item>
+		<item>Assumption,LA,022007</item>
+		<item>Avoyelles,LA,022009</item>
+		<item>Beauregard,LA,022011</item>
+		<item>Bienville,LA,022013</item>
+		<item>Bossier,LA,022015</item>
+		<item>Caddo,LA,022017</item>
+		<item>Calcasieu,LA,022019</item>
+		<item>Caldwell,LA,022021</item>
+		<item>Cameron,LA,022023</item>
+		<item>Catahoula,LA,022025</item>
+		<item>Claiborne,LA,022027</item>
+		<item>Concordia,LA,022029</item>
+		<item>De Soto,LA,022031</item>
+		<item>East Baton Rouge,LA,022033</item>
+		<item>East Carroll,LA,022035</item>
+		<item>East Feliciana,LA,022037</item>
+		<item>Evangeline,LA,022039</item>
+		<item>Franklin,LA,022041</item>
+		<item>Grant,LA,022043</item>
+		<item>Iberia,LA,022045</item>
+		<item>Iberville,LA,022047</item>
+		<item>Jackson,LA,022049</item>
+		<item>Jefferson,LA,022051</item>
+		<item>Jefferson Davis,LA,022053</item>
+		<item>Lafayette,LA,022055</item>
+		<item>Lafourche,LA,022057</item>
+		<item>La Salle,LA,022059</item>
+		<item>Lincoln,LA,022061</item>
+		<item>Livingston,LA,022063</item>
+		<item>Madison,LA,022065</item>
+		<item>Morehouse,LA,022067</item>
+		<item>Natchitoches,LA,022069</item>
+		<item>Orleans,LA,022071</item>
+		<item>Ouachita,LA,022073</item>
+		<item>Plaquemines,LA,022075</item>
+		<item>Pointe Coupee,LA,022077</item>
+		<item>Rapides,LA,022079</item>
+		<item>Red River,LA,022081</item>
+		<item>Richland,LA,022083</item>
+		<item>Sabine,LA,022085</item>
+		<item>St. Bernard,LA,022087</item>
+		<item>St. Charles,LA,022089</item>
+		<item>St. Helena,LA,022091</item>
+		<item>St. James,LA,022093</item>
+		<item>St. John the Baptist,LA,022095</item>
+		<item>St. Landry,LA,022097</item>
+		<item>St. Martin,LA,022099</item>
+		<item>St. Mary,LA,022101</item>
+		<item>St. Tammany,LA,022103</item>
+		<item>Tangipahoa,LA,022105</item>
+		<item>Tensas,LA,022107</item>
+		<item>Terrebonne,LA,022109</item>
+		<item>Union,LA,022111</item>
+		<item>Vermilion,LA,022113</item>
+		<item>Vernon,LA,022115</item>
+		<item>Washington,LA,022117</item>
+		<item>Webster,LA,022119</item>
+		<item>West Baton Rouge,LA,022121</item>
+		<item>West Carroll,LA,022123</item>
+		<item>West Feliciana,LA,022125</item>
+		<item>Winn,LA,022127</item>
+	</string-array>
+	
+	<string-array name="CountyMississippi">
+	    <item>ALL MS Counties,US,028000</item>
+		<item>Adams,MS,028001</item>
+		<item>Alcorn,MS,028003</item>
+		<item>Amite,MS,028005</item>
+		<item>Attala,MS,028007</item>
+		<item>Benton,MS,028009</item>
+		<item>Bolivar,MS,028011</item>
+		<item>Calhoun,MS,028013</item>
+		<item>Carroll,MS,028015</item>
+		<item>Chickasaw,MS,028017</item>
+		<item>Choctaw,MS,028019</item>
+		<item>Claiborne,MS,028021</item>
+		<item>Clarke,MS,028023</item>
+		<item>Clay,MS,028025</item>
+		<item>Coahoma,MS,028027</item>
+		<item>Copiah,MS,028029</item>
+		<item>Covington,MS,028031</item>
+		<item>DeSoto,MS,028033</item>
+		<item>Forrest,MS,028035</item>
+		<item>Franklin,MS,028037</item>
+		<item>George,MS,028039</item>
+		<item>Greene,MS,028041</item>
+		<item>Grenada,MS,028043</item>
+		<item>Hancock,MS,028045</item>
+		<item>Harrison,MS,028047</item>
+		<item>Hinds,MS,028049</item>
+		<item>Holmes,MS,028051</item>
+		<item>Humphreys,MS,028053</item>
+		<item>Issaquena,MS,028055</item>
+		<item>Itawamba,MS,028057</item>
+		<item>Jackson,MS,028059</item>
+		<item>Jasper,MS,028061</item>
+		<item>Jefferson,MS,028063</item>
+		<item>Jefferson Davis,MS,028065</item>
+		<item>Jones,MS,028067</item>
+		<item>Kemper,MS,028069</item>
+		<item>Lafayette,MS,028071</item>
+		<item>Lamar,MS,028073</item>
+		<item>Lauderdale,MS,028075</item>
+		<item>Lawrence,MS,028077</item>
+		<item>Leake,MS,028079</item>
+		<item>Lee,MS,028081</item>
+		<item>Leflore,MS,028083</item>
+		<item>Lincoln,MS,028085</item>
+		<item>Lowndes,MS,028087</item>
+		<item>Madison,MS,028089</item>
+		<item>Marion,MS,028091</item>
+		<item>Marshall,MS,028093</item>
+		<item>Monroe,MS,028095</item>
+		<item>Montgomery,MS,028097</item>
+		<item>Neshoba,MS,028099</item>
+		<item>Newton,MS,028101</item>
+		<item>Noxubee,MS,028103</item>
+		<item>Oktibbeha,MS,028105</item>
+		<item>Panola,MS,028107</item>
+		<item>Pearl River,MS,028109</item>
+		<item>Perry,MS,028111</item>
+		<item>Pike,MS,028113</item>
+		<item>Pontotoc,MS,028115</item>
+		<item>Prentiss,MS,028117</item>
+		<item>Quitman,MS,028119</item>
+		<item>Rankin,MS,028121</item>
+		<item>Scott,MS,028123</item>
+		<item>Sharkey,MS,028125</item>
+		<item>Simpson,MS,028127</item>
+		<item>Smith,MS,028129</item>
+		<item>Stone,MS,028131</item>
+		<item>Sunflower,MS,028133</item>
+		<item>Tallahatchie,MS,028135</item>
+		<item>Tate,MS,028137</item>
+		<item>Tippah,MS,028139</item>
+		<item>Tishomingo,MS,028141</item>
+		<item>Tunica,MS,028143</item>
+		<item>Union,MS,028145</item>
+		<item>Walthall,MS,028147</item>
+		<item>Warren,MS,028149</item>
+		<item>Washington,MS,028151</item>
+		<item>Wayne,MS,028153</item>
+		<item>Webster,MS,028155</item>
+		<item>Wilkinson,MS,028157</item>
+		<item>Winston,MS,028159</item>
+		<item>Yalobusha,MS,028161</item>
+		<item>Yazoo,MS,028163</item>
+	</string-array>
+	
+	<string-array name="CountyTexas">
+		<item>ALL TX Counties,US,048000</item>
+		<item>Anderson,TX,048001</item>
+		<item>Andrews,TX,048003</item>
+		<item>Angelina,TX,048005</item>
+		<item>Aransas,TX,048007</item>
+		<item>Archer,TX,048009</item>
+		<item>Armstrong,TX,048011</item>
+		<item>Atascosa,TX,048013</item>
+		<item>Austin,TX,048015</item>
+		<item>Bailey,TX,048017</item>
+		<item>Bandera,TX,048019</item>
+		<item>Bastrop,TX,048021</item>
+		<item>Baylor,TX,048023</item>
+		<item>Bee,TX,048025</item>
+		<item>Bell,TX,048027</item>
+		<item>Bexar,TX,048029</item>
+		<item>Blanco,TX,048031</item>
+		<item>Borden,TX,048033</item>
+		<item>Bosque,TX,048035</item>
+		<item>Bowie,TX,048037</item>
+		<item>Brazoria,TX,048039</item>
+		<item>Brazos,TX,048041</item>
+		<item>Brewster,TX,048043</item>
+		<item>Briscoe,TX,048045</item>
+		<item>Brooks,TX,048047</item>
+		<item>Brown,TX,048049</item>
+		<item>Burleson,TX,048051</item>
+		<item>Burnet,TX,048053</item>
+		<item>Caldwell,TX,048055</item>
+		<item>Calhoun,TX,048057</item>
+		<item>Callahan,TX,048059</item>
+		<item>Cameron,TX,048061</item>
+		<item>Camp,TX,048063</item>
+		<item>Carson,TX,048065</item>
+		<item>Cass,TX,048067</item>
+		<item>Castro,TX,048069</item>
+		<item>Chambers,TX,048071</item>
+		<item>Cherokee,TX,048073</item>
+		<item>Childress,TX,048075</item>
+		<item>Clay,TX,048077</item>
+		<item>Cochran,TX,048079</item>
+		<item>Coke,TX,048081</item>
+		<item>Coleman,TX,048083</item>
+		<item>Collin,TX,048085</item>
+		<item>Collingsworth,TX,048087</item>
+		<item>Colorado,TX,048089</item>
+		<item>Comal,TX,048091</item>
+		<item>Comanche,TX,048093</item>
+		<item>Concho,TX,048095</item>
+		<item>Cooke,TX,048097</item>
+		<item>Coryell,TX,048099</item>
+		<item>Cottle,TX,048101</item>
+		<item>Crane,TX,048103</item>
+		<item>Crockett,TX,048105</item>
+		<item>Crosby,TX,048107</item>
+		<item>Culberson,TX,048109</item>
+		<item>Dallam,TX,048111</item>
+		<item>Dallas,TX,048113</item>
+		<item>Dawson,TX,048115</item>
+		<item>Deaf Smith,TX,048117</item>
+		<item>Delta,TX,048119</item>
+		<item>Denton,TX,048121</item>
+		<item>DeWitt,TX,048123</item>
+		<item>Dickens,TX,048125</item>
+		<item>Dimmit,TX,048127</item>
+		<item>Donley,TX,048129</item>
+		<item>Duval,TX,048131</item>
+		<item>Eastland,TX,048133</item>
+		<item>Ector,TX,048135</item>
+		<item>Edwards,TX,048137</item>
+		<item>Ellis,TX,048139</item>
+		<item>El Paso,TX,048141</item>
+		<item>Erath,TX,048143</item>
+		<item>Falls,TX,048145</item>
+		<item>Fannin,TX,048147</item>
+		<item>Fayette,TX,048149</item>
+		<item>Fisher,TX,048151</item>
+		<item>Floyd,TX,048153</item>
+		<item>Foard,TX,048155</item>
+		<item>Fort Bend,TX,048157</item>
+		<item>Franklin,TX,048159</item>
+		<item>Freestone,TX,048161</item>
+		<item>Frio,TX,048163</item>
+		<item>Gaines,TX,048165</item>
+		<item>Galveston,TX,048167</item>
+		<item>Garza,TX,048169</item>
+		<item>Gillespie,TX,048171</item>
+		<item>Glasscock,TX,048173</item>
+		<item>Goliad,TX,048175</item>
+		<item>Gonzales,TX,048177</item>
+		<item>Gray,TX,048179</item>
+		<item>Grayson,TX,048181</item>
+		<item>Gregg,TX,048183</item>
+		<item>Grimes,TX,048185</item>
+		<item>Guadalupe,TX,048187</item>
+		<item>Hale,TX,048189</item>
+		<item>Hall,TX,048191</item>
+		<item>Hamilton,TX,048193</item>
+		<item>Hansford,TX,048195</item>
+		<item>Hardeman,TX,048197</item>
+		<item>Hardin,TX,048199</item>
+		<item>Harris,TX,048201</item>
+		<item>Harrison,TX,048203</item>
+		<item>Hartley,TX,048205</item>
+		<item>Haskell,TX,048207</item>
+		<item>Hays,TX,048209</item>
+		<item>Hemphill,TX,048211</item>
+		<item>Henderson,TX,048213</item>
+		<item>Hidalgo,TX,048215</item>
+		<item>Hill,TX,048217</item>
+		<item>Hockley,TX,048219</item>
+		<item>Hood,TX,048221</item>
+		<item>Hopkins,TX,048223</item>
+		<item>Houston,TX,048225</item>
+		<item>Howard,TX,048227</item>
+		<item>Hudspeth,TX,048229</item>
+		<item>Hunt,TX,048231</item>
+		<item>Hutchinson,TX,048233</item>
+		<item>Irion,TX,048235</item>
+		<item>Jack,TX,048237</item>
+		<item>Jackson,TX,048239</item>
+		<item>Jasper,TX,048241</item>
+		<item>Jeff Davis,TX,048243</item>
+		<item>Jefferson,TX,048245</item>
+		<item>Jim Hogg,TX,048247</item>
+		<item>Jim Wells,TX,048249</item>
+		<item>Johnson,TX,048251</item>
+		<item>Jones,TX,048253</item>
+		<item>Karnes,TX,048255</item>
+		<item>Kaufman,TX,048257</item>
+		<item>Kendall,TX,048259</item>
+		<item>Kenedy,TX,048261</item>
+		<item>Kent,TX,048263</item>
+		<item>Kerr,TX,048265</item>
+		<item>Kimble,TX,048267</item>
+		<item>King,TX,048269</item>
+		<item>Kinney,TX,048271</item>
+		<item>Kleberg,TX,048273</item>
+		<item>Knox,TX,048275</item>
+		<item>Lamar,TX,048277</item>
+		<item>Lamb,TX,048279</item>
+		<item>Lampasas,TX,048281</item>
+		<item>La Salle,TX,048283</item>
+		<item>Lavaca,TX,048285</item>
+		<item>Lee,TX,048287</item>
+		<item>Leon,TX,048289</item>
+		<item>Liberty,TX,048291</item>
+		<item>Limestone,TX,048293</item>
+		<item>Lipscomb,TX,048295</item>
+		<item>Live Oak,TX,048297</item>
+		<item>Llano,TX,048299</item>
+		<item>Loving,TX,048301</item>
+		<item>Lubbock,TX,048303</item>
+		<item>Lynn,TX,048305</item>
+		<item>McCulloch,TX,048307</item>
+		<item>McLennan,TX,048309</item>
+		<item>McMullen,TX,048311</item>
+		<item>Madison,TX,048313</item>
+		<item>Marion,TX,048315</item>
+		<item>Martin,TX,048317</item>
+		<item>Mason,TX,048319</item>
+		<item>Matagorda,TX,048321</item>
+		<item>Maverick,TX,048323</item>
+		<item>Medina,TX,048325</item>
+		<item>Menard,TX,048327</item>
+		<item>Midland,TX,048329</item>
+		<item>Milam,TX,048331</item>
+		<item>Mills,TX,048333</item>
+		<item>Mitchell,TX,048335</item>
+		<item>Montague,TX,048337</item>
+		<item>Montgomery,TX,048339</item>
+		<item>Moore,TX,048341</item>
+		<item>Morris,TX,048343</item>
+		<item>Motley,TX,048345</item>
+		<item>Nacogdoches,TX,048347</item>
+		<item>Navarro,TX,048349</item>
+		<item>Newton,TX,048351</item>
+		<item>Nolan,TX,048353</item>
+		<item>Nueces,TX,048355</item>
+		<item>Ochiltree,TX,048357</item>
+		<item>Oldham,TX,048359</item>
+		<item>Orange,TX,048361</item>
+		<item>Palo Pinto,TX,048363</item>
+		<item>Panola,TX,048365</item>
+		<item>Parker,TX,048367</item>
+		<item>Parmer,TX,048369</item>
+		<item>Pecos,TX,048371</item>
+		<item>Polk,TX,048373</item>
+		<item>Potter,TX,048375</item>
+		<item>Presidio,TX,048377</item>
+		<item>Rains,TX,048379</item>
+		<item>Randall,TX,048381</item>
+		<item>Reagan,TX,048383</item>
+		<item>Real,TX,048385</item>
+		<item>Red River,TX,048387</item>
+		<item>Reeves,TX,048389</item>
+		<item>Refugio,TX,048391</item>
+		<item>Roberts,TX,048393</item>
+		<item>Robertson,TX,048395</item>
+		<item>Rockwall,TX,048397</item>
+		<item>Runnels,TX,048399</item>
+		<item>Rusk,TX,048401</item>
+		<item>Sabine,TX,048403</item>
+		<item>San Augustine,TX,048405</item>
+		<item>San Jacinto,TX,048407</item>
+		<item>San Patricio,TX,048409</item>
+		<item>San Saba,TX,048411</item>
+		<item>Schleicher,TX,048413</item>
+		<item>Scurry,TX,048415</item>
+		<item>Shackelford,TX,048417</item>
+		<item>Shelby,TX,048419</item>
+		<item>Sherman,TX,048421</item>
+		<item>Smith,TX,048423</item>
+		<item>Somervell,TX,048425</item>
+		<item>Starr,TX,048427</item>
+		<item>Stephens,TX,048429</item>
+		<item>Sterling,TX,048431</item>
+		<item>Stonewall,TX,048433</item>
+		<item>Sutton,TX,048435</item>
+		<item>Swisher,TX,048437</item>
+		<item>Tarrant,TX,048439</item>
+		<item>Taylor,TX,048441</item>
+		<item>Terrell,TX,048443</item>
+		<item>Terry,TX,048445</item>
+		<item>Throckmorton,TX,048447</item>
+		<item>Titus,TX,048449</item>
+		<item>Tom Green,TX,048451</item>
+		<item>Travis,TX,048453</item>
+		<item>Trinity,TX,048455</item>
+		<item>Tyler,TX,048457</item>
+		<item>Upshur,TX,048459</item>
+		<item>Upton,TX,048461</item>
+		<item>Uvalde,TX,048463</item>
+		<item>Val Verde,TX,048465</item>
+		<item>Van Zandt,TX,048467</item>
+		<item>Victoria,TX,048469</item>
+		<item>Walker,TX,048471</item>
+		<item>Waller,TX,048473</item>
+		<item>Ward,TX,048475</item>
+		<item>Washington,TX,048477</item>
+		<item>Webb,TX,048479</item>
+		<item>Wharton,TX,048481</item>
+		<item>Wheeler,TX,048483</item>
+		<item>Wichita,TX,048485</item>
+		<item>Wilbarger,TX,048487</item>
+		<item>Willacy,TX,048489</item>
+		<item>Williamson,TX,048491</item>
+		<item>Wilson,TX,048493</item>
+		<item>Winkler,TX,048495</item>
+		<item>Wise,TX,048497</item>
+		<item>Wood,TX,048499</item>
+		<item>Yoakum,TX,048501</item>
+		<item>Young,TX,048503</item>
+		<item>Zapata,TX,048505</item>
+		<item>Zavala,TX,048507</item>
+	</string-array>
+	
+	
+</resources>
