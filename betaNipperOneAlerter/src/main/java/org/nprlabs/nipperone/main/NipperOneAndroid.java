@@ -240,12 +240,16 @@ public class NipperOneAndroid extends Activity {
 
             }  else if ( UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action) ) {
                 //mMessage.append("\nThe Receiver is plugged in!\n");
+                //TODO add the start background service here!!
 
+                Intent background = new Intent(context, MyService.class);
+                context.startService(background);
 
             } else if ( UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action) ) {
                 // Either the receiver has been rebooted or physically disconnected from the tablet.
                 // Bring this to the user's attention.
                 receiverNotConnected();
+                //TODO add the stop background service here.
 
             } else if ( "org.prss.nprlabs.nipperonealerter.USBPERMISSION".equals(action) ) {
                 for (final UsbDevice device : mUsbManager.getDeviceList().values()) {
@@ -270,8 +274,8 @@ public class NipperOneAndroid extends Activity {
                         }
                     }
                 }
-            }
-        }
+            } //end elseif
+        } //end onReceive()
     };
 
 //    /**
@@ -535,8 +539,8 @@ public class NipperOneAndroid extends Activity {
         /// -----------| END System Nav Bar + Title Bar hiding and revealing |-
 
         // Set up the USB Manager and look for the NipperOne receiver. We create it here, once,
-        // so onResume can use it.
-        mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
+        // so onResume can use it. moved to MyService.
+        //mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
         //probeUSBforReceiver();
 
         // DEBUG TEXT TO PLAY WITH SCROLLING:

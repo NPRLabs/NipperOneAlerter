@@ -33,8 +33,10 @@ public class MyService extends Service {
 
 
     private static final String TAG = "MyService";
-    private NotificationManager mNotificationManager;
+
+    boolean isRunning = false;
     private UsbManager mUsbManager;
+    Thread backgroundThread;
 
     private final Messenger mMessenger = new Messenger(new msgHandler());
 
@@ -42,7 +44,9 @@ public class MyService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "S:onCreate: Service Started.");
-        mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
+
+        this.isRunning = true;
+        //this.backgroundThread = new Thread(myTask);
     }
 
     @Override
@@ -50,67 +54,22 @@ public class MyService extends Service {
         return mMessenger.getBinder();
     }
 
-//    public void onReceive(Context context, Intent intent) {
-//        String action = intent.getAction();
-//        if ( Intent.ACTION_TIME_TICK.equals(action) ) {
-//
-//            mCalendar.setTimeInMillis(System.currentTimeMillis());
-//            mClockText.setText(DateFormat.format(mFormat, mCalendar));
-//
-//        }  else if ( UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action) ) {
-//            //mMessage.append("\nThe Receiver is plugged in!\n");
-//
-//
-//        } else if ( UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action) ) {
-//            // Either the receiver has been rebooted or physically disconnected from the tablet.
-//            // Bring this to the user's attention.
-//            receiverNotConnected();
-//
-//        } else if ( "org.prss.nprlabs.nipperonealerter.USBPERMISSION".equals(action) ) {
-//            for (final UsbDevice device : mUsbManager.getDeviceList().values()) {
-//                if (device.getVendorId() == 0x1320) {
-//                    Log.d(TAG, "Found Catena USB device: " + device);
-//                    //mMessage.append("Found the NipperOne Radio receiver\n");
-//
-//                    if ( mUsbManager.hasPermission(device) ) {
-//                        final List<UsbSerialDriver> drivers =
-//                                UsbSerialProber.probeSingleDevice(mUsbManager, device);
-//                        if (drivers.isEmpty()) {
-//                            Log.d(TAG, "  - No UsbSerialDriver available.");
-//                            //mMessage.append("\nThe Nipper One receiver does NOT have its driver assigned.\nPlease Press the Receiver's Reset button.\n");
-//                        } else {
-//                            for (UsbSerialDriver driver : drivers) {
-//                                Log.d(TAG, "  + " + driver);
-//                                //mMessage.append("tickReceiver:The NipperOne receiver will be using the following driver:\n" + driver + "\n");
-//                            }
-//                        }
-//                    } else {
-//                        //mMessage.append("\nThis is distressing:\nWe still don't have permission to access the Catena Receiver.\n");
-//                    }
-//                }
-//            }
-//        }
-//    }
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId){
 
-    private void showNotification() {
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, NipperOneAndroid.class), 0);
-        Notification notification = new Notification.Builder(this)
-                .setContentTitle("NipperOne Alerter")
-                .setContentText("Started Alert System Monitor")
-                .setSmallIcon(R.drawable.nprlabslogo)
-                .setContentIntent(contentIntent).build();
-
-        mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        notification.flags = notification.flags | Notification.FLAG_ONGOING_EVENT;
-        notification.flags |= Notification.FLAG_AUTO_CANCEL;
-
-        //mNotificationManager.notify(0,notification);
+        if(!this.isRunning){
+            this.isRunning = true;
+            this.backgroundThread.start();
+        }
+        return START_STICKY;
     }
+
 
     @Override
     public void onDestroy() {
 
     }
+
 
 
     /**
