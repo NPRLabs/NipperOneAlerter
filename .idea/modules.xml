@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/AndroidStudioWorkspace.iml" filepath="$PROJECT_DIR$/AndroidStudioWorkspace.iml" />
-      <module fileurl="file://$PROJECT_DIR$/betaNipperOneAlerter/betaNipperOneAlerter.iml" filepath="$PROJECT_DIR$/betaNipperOneAlerter/betaNipperOneAlerter.iml" />
-      <module fileurl="file://$PROJECT_DIR$/wheel/wheel.iml" filepath="$PROJECT_DIR$/wheel/wheel.iml" />
+      <module fileurl="file://$PROJECT_DIR$/BetaNipperOneAlerter.iml" filepath="$PROJECT_DIR$/BetaNipperOneAlerter.iml" />
     </modules>
   </component>
 </project>
