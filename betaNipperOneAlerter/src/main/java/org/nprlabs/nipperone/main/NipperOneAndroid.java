@@ -11,6 +11,7 @@ import android.hardware.usb.UsbManager;
 
 import org.nprlabs.nipperone.fragments.CustomDialog;
 import org.nprlabs.nipperone.framework.DatabaseHandler;
+import org.nprlabs.nipperone.framework.Message;
 import org.prss.nprlabs.nipperonealerter.R;
 import org.nprlabs.nipperone.activities.SetPreferenceActivity;
 import org.nprlabs.nipperone.framework.NipperConstants;
@@ -169,12 +170,6 @@ public class NipperOneAndroid extends Activity {
 
     private TextView mClockText;
 
-
-    /** Provides methods to manage termination and methods that can produce 
-     * a Future for tracking progress of one or more asynchronous tasks. 
-     */
-    private final ExecutorService mExecutor = Executors.newSingleThreadExecutor();
-
     private Calendar mCalendar;
     // These define the time display string for the 12 and 24 hour clock.
     private final static String m12 = "h:mm aa";
@@ -182,9 +177,9 @@ public class NipperOneAndroid extends Activity {
     private String mFormat;
 
     private UsbSerialDriver sDriver = null;
-    private SerialInputOutputManager mSerialIoManager;
+//    private SerialInputOutputManager mSerialIoManager;
     private UsbManager mUsbManager;
-    private PendingIntent mPermissionIntent = null;
+//    private PendingIntent mPermissionIntent = null;
     private IntentFilter tickReceiverIntentFilter = null;
 
     // These indicate which fragment we want to display
@@ -216,13 +211,6 @@ public class NipperOneAndroid extends Activity {
     static Drawable drawStationFreqQuick = null;
     static Drawable drawStationFreqFoundStation = null;
 
-
-
-    /**
-     * Define the Listener and callback functions that interface with the Serial I/O manager.
-     * The serial manager calls onNewData when it detects incoming data in its buffer.
-     */
-    private SerialInputOutputManager.Listener mListener;
 
 
     /**
@@ -459,111 +447,24 @@ public class NipperOneAndroid extends Activity {
 
 
 
-        // Set up an instance of SystemUiHider to control the system UI for
-        // this activity.
-//        mSystemUiHider = SystemUiHider.getInstance(this, contentView, HIDER_FLAGS);
-//        mSystemUiHider.setup();
-
-//        mSystemUiHider.setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener() {
-//            // Cached values.
-//            int mContentHeight;
-//            int mShortAnimTime;
-//
-//            @Override
-//            @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-//            public void onVisibilityChange(boolean visible) {
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-//                    // If the ViewPropertyAnimator API is available
-//                    // (Honeycomb MR2 and later), use it to animate the
-//                    // in-layout UI controls at the bottom of the
-//                    // screen.
-//                    if (mContentHeight == 0) {
-//                        mContentHeight = contentView.getHeight();
-//                    }
-//                    if (mShortAnimTime == 0) {
-//                        mShortAnimTime = getResources().getInteger(
-//                                android.R.integer.config_shortAnimTime);
-//                    }
-//                    // Reference: http://stackoverflow.com/questions/16282294/show-title-bar-from-code
-//                    //getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-//                    //getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-//
-//
-//                    controlsView.animate()
-//                            .translationY(visible ? mContentHeight : 0)
-//                            .setDuration(mShortAnimTime);
-//                } else {
-//                    // If the ViewPropertyAnimator APIs aren't
-//                    // available, simply show or hide the in-layout UI
-//                    // controls.
-//                    controlsView.setVisibility(visible ? View.VISIBLE : View.GONE);
-//                }
-//
-//                if (visible && AUTO_HIDE) {
-//                    // Schedule a hide().
-//                    delayedHide(AUTO_HIDE_DELAY_MILLIS);
-//                }
-//            }
-//        });
-
-        // Set up the user interaction to manually show or hide the system UI.
-//        contentView.setOnClickListener(new View.OnClickListener() {
-//            //API.mStationLayout.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if (TOGGLE_ON_CLICK) {
-//                    mSystemUiHider.toggle();
-//                } else {
-//                    mSystemUiHider.show();
-//                }
-//            }
-//        });
-
-//        /**
-//         * Touch listener to use for in-layout UI controls to delay hiding the
-//         * system UI.<br>This is to prevent the jarring behavior of controls going away
-//         * while interacting with activity UI.
-//         */
-//        mMessage.setOnTouchListener(new TextView.OnTouchListener(){
-//            @Override
-//            public boolean onTouch(View view, MotionEvent motionEvent) {
-//               
-//                if ( view != mMessage ) return false;
-//                
-//                //delayedEnableScroll(5000);
-//                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-//                return false;
-//            }   
-//        });
-
-        /// -----------| END System Nav Bar + Title Bar hiding and revealing |-
-
-        // Set up the USB Manager and look for the NipperOne receiver. We create it here, once,
-        // so onResume can use it. moved to MyService.
-        //mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
-        //probeUSBforReceiver();
-
-        // DEBUG TEXT TO PLAY WITH SCROLLING:
-        //API.appendTextAndScroll("Home is a customizable space that houses app shortcuts, folders and widgets. Navigate between different home screen panels by swiping left and right.The Favorites Tray at the bottom always keeps your most important shortcuts and folders in view regardless of which panel is currently showing. Access the entire collection of apps and widgets by touching the All Apps button at the center of the Favorites Tray.Home is a customizable space that houses app shortcuts, folders and widgets. Navigate between different home screen panels by swiping left and right.The Favorites Tray at the bottom always keeps your most important shortcuts and folders in view regardless of which panel is currently showing. Access the entire collection of apps and widgets by touching the All Apps button at the center of the Favorites Tray.Home is a customizable space that houses app shortcuts, folders and widgets. Navigate between different home screen panels by swiping left and right.The Favorites Tray at the bottom always keeps your most important shortcuts and folders in view regardless of which panel is currently showing. Access the entire collection of apps and widgets by touching the All Apps button at the center of the Favorites Tray.");
-
         // Load any app preferences (not receiver config, but only app stuff).
         loadPrefs();
 
-        mListener = new SerialInputOutputManager.Listener() {
-            @Override
-            public void onRunError(Exception e) {
-                Log.d(TAG, "SerialInputOutputManagerListener Runner stopped.");
-            }
-            @Override
-            public void onNewData(final byte[] data) {
-                NipperOneAndroid.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        processReceivedData(data);  //NipperOneAlerter.this.updateReceivedData(data);
-                    }
-                });
-            }
-        };
+//        mListener = new SerialInputOutputManager.Listener() {
+//            @Override
+//            public void onRunError(Exception e) {
+//                Log.d(TAG, "SerialInputOutputManagerListener Runner stopped.");
+//            }
+//            @Override
+//            public void onNewData(final byte[] data) {
+//                NipperOneAndroid.this.runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        processReceivedData(data);  //NipperOneAlerter.this.updateReceivedData(data);
+//                    }
+//                });
+//            }
+//        };
 
 
     } // END onCreate()
@@ -586,31 +487,31 @@ public class NipperOneAndroid extends Activity {
         // are available.
         //delayedHide(500);
     }
-
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onPause()
-     * Clean up running processes to prepare for the activity to pause
-     * We unregister the tickReceiver, stop the serialIOManager, 
-     * and null sDriver.
-     * Any incoming alert messages will not be seen by the app, although
-     * the receiver will continue to monitor the station.
-     */
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if(tickReceiver != null) unregisterReceiver(tickReceiver);
-        Log.d(TAG,"---OnPause---");
-        stopIoManager();
-        if (sDriver != null) {
-            try {
-                sDriver.close();
-            } catch (IOException e) {
-                Log.e (TAG,"Error trying to close sDriver in onPause().");
-            }
-            sDriver = null;
-        }
-    }
+//
+//    /*
+//     * (non-Javadoc)
+//     * @see android.app.Activity#onPause()
+//     * Clean up running processes to prepare for the activity to pause
+//     * We unregister the tickReceiver, stop the serialIOManager,
+//     * and null sDriver.
+//     * Any incoming alert messages will not be seen by the app, although
+//     * the receiver will continue to monitor the station.
+//     */
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        if(tickReceiver != null) unregisterReceiver(tickReceiver);
+//        Log.d(TAG,"---OnPause---");
+//        stopIoManager();
+//        if (sDriver != null) {
+//            try {
+//                sDriver.close();
+//            } catch (IOException e) {
+//                Log.e (TAG,"Error trying to close sDriver in onPause().");
+//            }
+//            sDriver = null;
+//        }
+//    }
 
     /// -----------| END API and USB support functions |-----------------------
 
@@ -652,7 +553,6 @@ public class NipperOneAndroid extends Activity {
             openAbout();
             return true;
         } else if (id == R.id.action_clearscreen) {
-            clearText();
             return true;
         } else if (id == R.id.action_restore_receiver_defaults){
             // @TODO Finish the Alert dialog.
@@ -682,104 +582,6 @@ public class NipperOneAndroid extends Activity {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onResume()
-     * We're here either after onCreate() or coming back to the main activity from showing Help, 
-     * User Settings, etc, and normally this wouldn't be a big deal, but we have a USB connection
-     * that has to be managed, complicating the restart.
-     */
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d(TAG,"---onResume---");
-        Log.d(TAG, "Resumed, sDriver=" + sDriver);
-
-        // If we're returning from another activity and have left during an Alert, clear the flag
-        // so the screen will eventually be put back into alarm.
-        HaveSetAlarmScreen = false;
-
-        // When we left this activity to show help|settings|etc., we set 
-        // sDriver to null, so we need to probe for the device and driver again.
-        if (sDriver == null) {
-            //mMessage.append("Now looking for the NipperOne Receiver...\n");
-            probeUSBforReceiver();
-        }
-
-        // We've probed and hopefully found the receiver.
-        // If so, we'll set up the USB connection, register the tickReceiver, 
-        // and start the IO Manager.
-        if (sDriver != null) {
-            try {
-                sDriver.open();
-                sDriver.setParameters(115200, 8, UsbSerialDriver.STOPBITS_1, UsbSerialDriver.PARITY_NONE);
-                // Stop and restart the IOManager
-                onDeviceStateChange();
-
-                // @TODO Put the configuration check here to see if our FIPS or any other receiver configuration has changed.
-                if (compareFIPS()) updateReceiverFIPS();
-                loadPrefs();
-
-            } catch (IOException e) {
-                Log.e(TAG, "Error setting up NipperOne: " + e.getMessage(), e);
-                //mMessage.setText("Error opening NipperOne: " + e.getMessage() + "\n");
-                try {
-                    sDriver.close();
-                } catch (IOException e2) {
-                    Log.e("onResume",e2.getMessage());   // Ignore.
-                }
-                sDriver = null;
-                return;
-            }
-        }
-        // Register the broadcast receiver to receive TIME_TICK and other broadcasts of interest.
-        // We register regardless if the NipperOne is found or not.
-        registerReceiver(tickReceiver, tickReceiverIntentFilter);
-    }
-
-    /// -----------| USB Connection Probing |---------------------------
-
-    /**
-     * This function uses the usbserial library to probe for the 
-     * Catena device's VendorID (0x1320) and check that we have a driver for it.<br>
-     * If found, ensures we have user permission to access the device and 
-     * ask the user if we don't have permission.
-     * If we already have permission, assign the driver to sDriver.
-     *
-     */
-    private void probeUSBforReceiver() {
-        for (final UsbDevice device : mUsbManager.getDeviceList().values()) {
-            if (device.getVendorId() == 0x1320) {
-                Log.d(TAG, "Found Catena (NipperOne) USB device: " + device);
-                //mMessage.append("Found the NipperOne receiver.\n");
-                // Make sure we have permission to access the Receiver, if not, ask the user 
-                // if it's OK to access the receiver.
-                if ( mUsbManager.hasPermission(device) ) {
-                    final List<UsbSerialDriver> drivers =
-                            UsbSerialProber.probeSingleDevice(mUsbManager, device);
-                    if (drivers.isEmpty()) {
-                        Log.d(TAG, "  - No UsbSerialDriver available.");
-                        //mMessage.append("\nThe NipperOne receiver does NOT have its software driver assigned. \nPlease Press the Receiver's Reset button.\n");
-                    } else {
-                        // This simply confirms to the user that we're connected to the receiver;
-                        // there is nothing to call here because mListener will begin to get 
-                        // the incoming receiver data, once we've set sDriver to the proper CDC driver.
-                        for (UsbSerialDriver driver : drivers) {
-                            // Most important line in the function: Assigns the driver to sDriver.
-                            sDriver = driver;
-                            Log.d(TAG, "  + " + driver);
-                            //mMessage.append("Ready...\n");
-                        }
-                    }
-                } else {
-                    // Let's get permission from the user.
-                    mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent("org.prss.nprlabs.nipperonealerter.USBPERMISSION"),0);
-                    mUsbManager.requestPermission(device, mPermissionIntent);
-                }
-            }
-        }
-    }
-    /// -----------| END USB Connection Probing |---------------------------
 
 
 //    /**
@@ -818,37 +620,7 @@ public class NipperOneAndroid extends Activity {
 
     /// -----------| API and USB support functions |---------------------------
 
-    /**
-     * Stops the serialIOManager and NULLs its member
-     */
-    private void stopIoManager() {
-        if (mSerialIoManager != null) {
-            Log.i(TAG, "Stopping io manager ..");
-            mSerialIoManager.stop();
-            mSerialIoManager = null;
-        }
-    }
 
-    /**
-     * If a USB Driver is assigned, creates a new serialIOManager and
-     * starts its async process.
-     */
-    private void startIoManager() {
-        if (sDriver != null) {
-            Log.i(TAG, "Starting io manager ..");
-            mSerialIoManager = new SerialInputOutputManager(sDriver, mListener);
-            mExecutor.submit(mSerialIoManager);
-            // Not strictly necessary but nice to have the firmware version available.
-        }
-    }
-
-    /**
-     * Stop and re-start the serialIOManager
-     */
-    private void onDeviceStateChange() {
-        stopIoManager();
-        startIoManager();
-    }
 
     /**
      * Handler for Action Bar item "About"
@@ -1052,127 +824,7 @@ public class NipperOneAndroid extends Activity {
         }
     }
 
-    /**
-     * Int assignments assigned in configValue[]
-     *  0 - Configuration block number [API 1.10, 1.11, 1.12 only returns block 0]
-     *  1 - Size of byte array holding configuration block, excluding Message Length bytes.
-     *  2 - Scan Interval_2Hz [ms]
-     *  3 - Scan Interval_05Hz [ms]
-     *  4 - RFtimeOut [sec]
-     *  5 - USBtimeOut [sec]
-     *  6 - BeaconTimeOut [sec]
-     *  7 - AlertTimeOut [sec]
-     *  8 - AlarmTimeOut [sec]
-     *  9 - SnoozeTimeOut [sec]
-     * 10 - AllowRemote [1 - true; 0 - false]
-     * 11 - Tuning Grid [1 – 200kHz; 0 - 100 kHz]
-     * 12 - Volume [0..63]
-     * 13 - FIPS portion code [0..9]
-     * 14 - FIPS state code [0..99]
-     * 15 - FIPS county code [0..999]
-     * 16 - Version [Major]
-     * 17 - Version [Minor]
-     * 18 - Beacon wait time[ms]
-     * 19 - Validity for other functions to use: 0 = Request in process, don't use. 1 = Valid configuration array.
-     */
 
-    /// -----------| END Action Bar Support functions |------------------------
-
-    /**
-     * Processes the incoming receiver data based on its content defined in the receiver API.
-     * We expect a multi-byte header defining the data and its purpose, but there are two cases
-     * where non-header data must be expected:
-     *    1) The continuation of an alert message from Text Notification API, or
-     *    2) The continuation of Stored Messages made in response to a requestStoredMessages API call.
-     * It is not possible to determine the source of non-header messages if a request for returning stored messages 
-     * is made during the period when alert message text is being returned.
-     *
-     * NOTE: All graphical TextView,ImageView,etc. members in this class must be initialized
-     *       prior to calling this function.
-     * @param data A byte array containing data sent from the NPRLabs accessible FM RDS Receiver.
-     */
-    public void processReceivedData(byte[] data) {
-
-
-        // 0xED = -19d = Notification from the receiver
-        // 0xEE = -18d = Return of requested data
-        // (All Java bytes are signed)
-        // REFERENCE: http://stackoverflow.com/questions/11088/what-is-the-best-way-to-work-around-the-fact-that-all-java-bytes-are-signed
-
-        if(messageCount > 0 && dbHandler.getMessageCount()> 0 && dbHandler.msgExists(messageCount)){
-            myMsg= dbHandler.getMessage(messageCount);
-        }
-
-        if (data[NipperConstants.receiverByteReturnType] == NipperConstants.receiverReturnTypeNotification) {
-            switch (data[NipperConstants.receiverByteReturnMode]){
-                case NipperConstants.RECEIVER_MODE_STATUS:
-                    updateTabletTextViews(data);
-                    //System.out.println("The tablet views were updated");
-                    break;
-                case NipperConstants.RECEIVER_MODE_TEXT:
-                    myMsg = myReceiver.updateReceiverAlertMessage(data, false, myMsg);
-//                    System.out.println("#1THE MESSAGE THAT WAS RETURNED: " + myMsg.ShortMsgtoString());
-
-                    this.expectingMoreAlertText = myReceiver.get_expectingMoreAlertText();
-
-                    if(dbHandler.msgExists(messageCount)){
-                        dbHandler.updateMessage(myMsg);
-                        System.out.println("#1I updated the message!!!!!! message is now: " + myMsg.ShortMsgtoString());
-                    }else{
-//                        System.out.println("DID NOT UPDATE THE DATABASE, CASE WAS FALSE");
-                    }
-//                    System.out.println("UPDATE");
-                    break;
-                case NipperConstants.RECEIVER_MODE_BANDSCAN:
-                    updateReceiverBandScan(data);
-                    break;
-                case NipperConstants.RECEIVER_MODE_EASDATA:
-                    myMsg = myReceiver.updateReceiverEASData(data, myMsg);
-                    //System.out.println("This is what Message String is currently: " + myMsg.getMsgString());
-                    displayCurrentMessage();
-                   if(isAlarm && dbHandler.msgExists(messageCount)){
-                        dbHandler.updateMessage(myMsg);
-//                        System.out.println("#2I updated the message!!!!!! message is now: " + myMsg.ShortMsgtoString());
-                        //System.out.println("Did not add a new alert message, updated existing one.");
-                    }
-                    break;
-                default:
-                    break;
-            }
-
-        } else if  (data[NipperConstants.receiverByteReturnType] == NipperConstants.receiverReturnTypeStatus) {
-            switch (data[NipperConstants.receiverByteReturnMode]){
-                case NipperConstants.RECEIVER_MODE_VERSION:
-                    versionNipperOneReceiver = myReceiver.receiveReceiverVersion(data);
-                    //Log.d("versionNipperOneReceiver", versionNipperOneReceiver);
-                    break;
-                case NipperConstants.RECEIVER_MODE_CONFIGURATION:
-                    myReceiver.receiveReceiverConfiguration(data, this);
-                    break;
-                case NipperConstants.RECEIVER_MODE_STOREDMESSAGES:
-                    break;
-                default:
-                    break;
-            }
-        }
-        else {
-            // Data without a header is handled here.
-            // It is either data containing Stored Messages, or it's from Text Notification API.
-            // If we're in alarm but we haven't had a text notification with a header, ignore it.
-            if (expectingMoreAlertText) {
-                if (isAlarm){
-                    myMsg = myReceiver.updateReceiverAlertMessage(data, true, myMsg);
-                    if(dbHandler.msgExists(messageCount)){
-                        dbHandler.updateMessage(myMsg);
-                        System.out.println("#3I updated the message!!!!!! message is now: " + myMsg.ShortMsgtoString());
-                    }
-                }
-            } else  {
-
-            }
-        }
-
-    } // END updateReceivedData()
 
     /**
      * Displays the receiver's status to the tablet screen.
@@ -1345,13 +997,6 @@ public class NipperOneAndroid extends Activity {
 
     } // END updateReceiverStatus()
 
-    /**
-     * a helper method used by updateTabletScreen()
-     * it updates the variables in
-     */
-    private void displayCurrentMessage(){
-
-    }
 
     /**
      * Displays the tuned frequency when the receiver is
@@ -1387,12 +1032,6 @@ public class NipperOneAndroid extends Activity {
 
     /// -----------| Utility Functions |-------------------------------------------
 
-
-    /**
-     * Clears mMessage of all text and sets the printing line to 0,0.
-     */
-    public void clearText(){
-    }
 
     /**
      * Returns the tablet display to a non-alarm display,<br>
@@ -1440,6 +1079,27 @@ public class NipperOneAndroid extends Activity {
             }
         }
         mStationFreq.setText("DISCONNECTED FROM RECEIVER");
+    }
+
+    class ResponseHandler extends Handler {
+
+        @Override
+        public void handleMessage(android.os.Message msg){
+            int respCode = msg.what;
+
+            switch(respCode){
+                case MyService.GET_MSG:
+
+                    break;
+                case MyService.NEW_ALERT:
+
+                    break;
+                case MyService.ALERT_DONE:
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
 

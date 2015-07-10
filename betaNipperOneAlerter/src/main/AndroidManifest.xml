@@ -18,7 +18,8 @@
         android:theme="@android:style/Theme.Holo"
         android:logo="@drawable/nprlabslogo">
 
-        <service android:name="org.nprlabs.nipperone.main.MyService"/>
+        <service android:name="org.nprlabs.nipperone.main.MyService"
+                android:process="myPrc"/>
 
         <!-- Our main activity for the alerting and interface to the NipperOne receiver -->  
         <activity

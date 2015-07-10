@@ -41,4 +41,9 @@ public class NipperConstants {
     // 0xED (-19 unsigned) in ReturnType indicates a Notification message
     public static final byte receiverReturnTypeNotification = -19;
 
+    public static boolean isAlarm = false;
+    public static boolean expectingMoreAlertText = false;
+    public static int messageCount = 0;
+    public static String versionNipperOneReceiver = "unknown";
+
 }
