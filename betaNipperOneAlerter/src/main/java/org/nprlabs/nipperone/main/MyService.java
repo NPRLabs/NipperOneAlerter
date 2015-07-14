@@ -1,5 +1,6 @@
 package org.nprlabs.nipperone.main;
 
+import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -43,11 +44,6 @@ public class MyService extends Service {
     static final int ALERT_DONE = 3;
 
     boolean isRunning = false;
-    Thread backgroundThread;
-    /** Provides methods to manage termination and methods that can produce
-     * a Future for tracking progress of one or more asynchronous tasks.
-     */
-    private final ExecutorService mExecutor = Executors.newSingleThreadExecutor();
 
     private Receiver myReceiver = new Receiver();
     private MessageImpl myMsg = new MessageImpl();
@@ -90,6 +86,7 @@ public class MyService extends Service {
         };
     }
 
+
     @Override
     public IBinder onBind(Intent intent) {
         return mMessenger.getBinder();
@@ -101,7 +98,6 @@ public class MyService extends Service {
         Log.d(TAG, "Service Started");
         if(!this.isRunning){
             this.isRunning = true;
-            this.backgroundThread.start();
         }
         return START_STICKY;
     }
@@ -167,7 +163,7 @@ public class MyService extends Service {
         if (data[NipperConstants.receiverByteReturnType] == NipperConstants.receiverReturnTypeNotification) {
             switch (data[NipperConstants.receiverByteReturnMode]){
                 case NipperConstants.RECEIVER_MODE_STATUS:
-                    //updateTabletTextViews(data);
+                    updateTabletTextViews(data);
                     //System.out.println("The tablet views were updated");
                     break;
                 case NipperConstants.RECEIVER_MODE_TEXT:
@@ -185,7 +181,7 @@ public class MyService extends Service {
 //                    System.out.println("UPDATE");
                     break;
                 case NipperConstants.RECEIVER_MODE_BANDSCAN:
-                    //updateReceiverBandScan(data);
+                    updateReceiverBandScan(data);
                     break;
                 case NipperConstants.RECEIVER_MODE_EASDATA:
                     myMsg = myReceiver.updateReceiverEASData(data, myMsg);

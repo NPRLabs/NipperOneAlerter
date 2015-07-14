@@ -5,6 +5,8 @@
 package org.nprlabs.nipperone.main;
 
 // For USB access and control
+import android.content.ComponentName;
+import android.content.ServiceConnection;
 import android.graphics.drawable.Drawable;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
@@ -24,6 +26,8 @@ import android.app.PendingIntent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
+import android.os.Messenger;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
@@ -176,7 +180,7 @@ public class NipperOneAndroid extends Activity {
     private final static String m24 = "k:mm";
     private String mFormat;
 
-    private UsbSerialDriver sDriver = null;
+//    private UsbSerialDriver sDriver = null;
 //    private SerialInputOutputManager mSerialIoManager;
     private UsbManager mUsbManager;
 //    private PendingIntent mPermissionIntent = null;
@@ -188,8 +192,6 @@ public class NipperOneAndroid extends Activity {
 
 
     static String versionNipperOneAlerter = "Unknown";
-
-    static String versionNipperOneReceiver = "Unknown";
 
     static RelativeLayout mStationLayout;
     static ImageView mStationLogo;
@@ -230,8 +232,6 @@ public class NipperOneAndroid extends Activity {
                 //mMessage.append("\nThe Receiver is plugged in!\n");
                 //TODO add the start background service here!!
 
-                Intent background = new Intent(context, MyService.class);
-                context.startService(background);
 
             } else if ( UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action) ) {
                 // Either the receiver has been rebooted or physically disconnected from the tablet.
@@ -314,11 +314,11 @@ public class NipperOneAndroid extends Activity {
      */
     private static Boolean HaveSetAlarmScreen = false;
 
-    /**
-     * Receiver Alarm Status Flag (set and cleared in updateReceiverStatus())
-     * Set = ALARM, Cleared = Normal
-     */
-    private static boolean isAlarm = false;
+//     /**
+     //     * Receiver Alarm Status Flag (set and cleared in updateReceiverStatus())
+     //     * Set = ALARM, Cleared = Normal
+     //     */
+//    private static boolean isAlarm = false;
 
     /**
      * The message string to display when the receiver is disconnected or is rebooting.
@@ -346,6 +346,9 @@ public class NipperOneAndroid extends Activity {
     boolean messageComplete = false;
 
     MessageImpl newMsg = new MessageImpl();
+
+    private ServiceConnection sConn;
+    private Messenger messenger;
 
     /*
      * (non-Javadoc)
@@ -450,21 +453,23 @@ public class NipperOneAndroid extends Activity {
         // Load any app preferences (not receiver config, but only app stuff).
         loadPrefs();
 
-//        mListener = new SerialInputOutputManager.Listener() {
-//            @Override
-//            public void onRunError(Exception e) {
-//                Log.d(TAG, "SerialInputOutputManagerListener Runner stopped.");
-//            }
-//            @Override
-//            public void onNewData(final byte[] data) {
-//                NipperOneAndroid.this.runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        processReceivedData(data);  //NipperOneAlerter.this.updateReceivedData(data);
-//                    }
-//                });
-//            }
-//        };
+
+        Intent background = new Intent(this.getApplicationContext(), MyService.class);
+
+        //creating a service connection and the overriding the 2 necessary methods.
+        sConn = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                messenger = new Messenger(service);
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                messenger = null;
+            }
+        };
+
+        bindService(background, sConn, Context.BIND_AUTO_CREATE);
 
 
     } // END onCreate()
@@ -648,7 +653,7 @@ public class NipperOneAndroid extends Activity {
                 msgFIPS = keyfips + " (A description of the location isn't available at the moment.)";
             }
         }
-        String msg = String.format(msgAbout,versionNipperOneAlerter,versionNipperOneReceiver,msgFIPS);
+        String msg = String.format(msgAbout,versionNipperOneAlerter,NipperConstants.versionNipperOneReceiver,msgFIPS);
 
 
         // Instead of making a Toast, display an "OK"-only dialog.
@@ -897,11 +902,11 @@ public class NipperOneAndroid extends Activity {
             // This is also a good place to extract our NIPPER ONE firmware version from the byte array
             // and store it for the About box use.
             //Log.d("versionNipperOneReceiver: update Tablet Text View ",Byte.toString(data[54]) + "." + Byte.toString(data[55]) );
-            versionNipperOneReceiver = Byte.toString(data[54]) + "." + Byte.toString(data[55]);
+            NipperConstants.versionNipperOneReceiver = Byte.toString(data[54]) + "." + Byte.toString(data[55]);
 
 
         } else {
-            isAlarm = (data[47] & NipperConstants.FLAG_HAVE_ALARM) == NipperConstants.FLAG_HAVE_ALARM  ? true : false;
+            NipperConstants.isAlarm = (data[47] & NipperConstants.FLAG_HAVE_ALARM) == NipperConstants.FLAG_HAVE_ALARM  ? true : false;
             //if ((data[47] & FLAG_HAVE_ALARM) == FLAG_HAVE_ALARM) {
             //    isAlarm = true;
             //} else isAlarm = false;
@@ -950,7 +955,7 @@ public class NipperOneAndroid extends Activity {
             // Change the background message box color on ALARM,
             // Return to normal otherwise.
             // TODO If a new message comes in while HaveSetAlarmScreen == true, then display the time stamp again.
-            if (isAlarm){
+            if (NipperConstants.isAlarm){
 
                 if (!HaveSetAlarmScreen ) {
 
