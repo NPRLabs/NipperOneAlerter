@@ -1,10 +1,8 @@
 package org.nprlabs.nipperone.main;
 
-import android.app.IntentService;
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.usb.UsbDevice;
@@ -24,11 +22,8 @@ import com.hoho.android.usbserial.util.SerialInputOutputManager;
 
 import org.nprlabs.nipperone.framework.DatabaseHandler;
 import org.nprlabs.nipperone.framework.NipperConstants;
-import org.prss.nprlabs.nipperonealerter.R;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Created by kbrudos on 7/8/2015.
@@ -39,9 +34,12 @@ public class MyService extends Service {
 
     private static final String TAG = "MyService";
 
-    static final int GET_MSG = 1;
+
+    static final int DONE = 11;
+    static final int UPDATE_TABLET_TEXT_VIEW = 1;
     static final int NEW_ALERT = 2;
-    static final int ALERT_DONE = 3;
+    static final int ALERT_DONE = 4;
+
 
     boolean isRunning = false;
 
@@ -57,7 +55,7 @@ public class MyService extends Service {
 
 
 
-    private final Messenger mMessenger = new Messenger(new msgHandler());
+    private final Messenger mMessenger = new Messenger(new PauseHandler());
 
     @Override
     public void onCreate() {
@@ -306,17 +304,20 @@ public class MyService extends Service {
         stopIoManager();
         startIoManager();
     }
+    private void updateReceiverBandScan(byte[] data){
+
+    }
+
+    private void updateTabletTextViews(byte[] data){
+
+    }
 
 
     /**
      * inner class that handles the communication between the client and the service.
      */
-    private static class msgHandler extends Handler {
+    private static class PauseHandler extends Handler {
 
-        //final int GET_MSG = 1;
-        final int GET_MSG_RESPONSE = 11;
-
-        private final int SET_MSG = 2;
 
         @Override
         public void handleMessage(Message msg) {
@@ -324,11 +325,11 @@ public class MyService extends Service {
             int msgType = msg.what;
 
             switch (msgType) {
-                case GET_MSG:
+                case UPDATE_TABLET_TEXT_VIEW:
                     try {
                         //Incoming Data
                         String data = msg.getData().getString("data");
-                        Message resp = Message.obtain(null, GET_MSG_RESPONSE);
+                        Message resp = Message.obtain(null, DONE);
                         Bundle bResp = new Bundle();
                         bResp.putString("respData", data.toUpperCase());
                         resp.setData(bResp);

@@ -13,7 +13,6 @@ import android.hardware.usb.UsbManager;
 
 import org.nprlabs.nipperone.fragments.CustomDialog;
 import org.nprlabs.nipperone.framework.DatabaseHandler;
-import org.nprlabs.nipperone.framework.Message;
 import org.prss.nprlabs.nipperonealerter.R;
 import org.nprlabs.nipperone.activities.SetPreferenceActivity;
 import org.nprlabs.nipperone.framework.NipperConstants;
@@ -22,7 +21,6 @@ import org.nprlabs.nipperonealerter.util.SystemUiHider;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.PendingIntent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,14 +33,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 // For clock display
 import java.util.Calendar;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -62,7 +57,6 @@ import android.content.res.Resources;
 
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
-import com.hoho.android.usbserial.util.SerialInputOutputManager;
 
 /* TODO on NipperOne Alerter app
 
@@ -219,52 +213,7 @@ public class NipperOneAndroid extends Activity {
      *  Define the broadcast receiver that handles incoming broadcast messages.
      *  Our clock tick and USB connections are monitored here.
      */
-    private final BroadcastReceiver tickReceiver = new BroadcastReceiver(){
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if ( Intent.ACTION_TIME_TICK.equals(action) ) {
-
-                mCalendar.setTimeInMillis(System.currentTimeMillis());
-                mClockText.setText(DateFormat.format(mFormat, mCalendar));
-
-            }  else if ( UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action) ) {
-                //mMessage.append("\nThe Receiver is plugged in!\n");
-                //TODO add the start background service here!!
-
-
-            } else if ( UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action) ) {
-                // Either the receiver has been rebooted or physically disconnected from the tablet.
-                // Bring this to the user's attention.
-                receiverNotConnected();
-                //TODO add the stop background service here.
-
-            } else if ( "org.prss.nprlabs.nipperonealerter.USBPERMISSION".equals(action) ) {
-                for (final UsbDevice device : mUsbManager.getDeviceList().values()) {
-                    if (device.getVendorId() == 0x1320) {
-                        Log.d(TAG, "Found Catena USB device: " + device);
-                        //mMessage.append("Found the NipperOne Radio receiver\n");
-
-                        if ( mUsbManager.hasPermission(device) ) {
-                            final List<UsbSerialDriver> drivers =
-                                    UsbSerialProber.probeSingleDevice(mUsbManager, device);
-                            if (drivers.isEmpty()) {
-                                Log.d(TAG, "  - No UsbSerialDriver available.");
-                                //mMessage.append("\nThe Nipper One receiver does NOT have its driver assigned.\nPlease Press the Receiver's Reset button.\n");
-                            } else {
-                                for (UsbSerialDriver driver : drivers) {
-                                    Log.d(TAG, "  + " + driver);
-                                    //mMessage.append("tickReceiver:The NipperOne receiver will be using the following driver:\n" + driver + "\n");
-                                }
-                            }
-                        } else {
-                            //mMessage.append("\nThis is distressing:\nWe still don't have permission to access the Catena Receiver.\n");
-                        }
-                    }
-                }
-            } //end elseif
-        } //end onReceive()
-    };
+    private final BroadcastReceiver tickReceiver = new MyReceiver();
 
 //    /**
 //     * Listens for a click on the EAS Short Codes TextViews, and displays a Toast object with a
@@ -1069,8 +1018,8 @@ public class NipperOneAndroid extends Activity {
      */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @SuppressWarnings("deprecation")
-    private void receiverNotConnected() {
-        if (HaveSetAlarmScreen) clearAlarmScreen();
+    public static void receiverNotConnected() {
+        if (HaveSetAlarmScreen) {}
         //mMessage.append(messageReceiverDisconnected);
 //        mBeaconStatus.setText("");
 //        mSignalLevel.setText("");
@@ -1093,7 +1042,7 @@ public class NipperOneAndroid extends Activity {
             int respCode = msg.what;
 
             switch(respCode){
-                case MyService.GET_MSG:
+                case MyService.UPDATE_TABLET_TEXT_VIEW:
 
                     break;
                 case MyService.NEW_ALERT:
