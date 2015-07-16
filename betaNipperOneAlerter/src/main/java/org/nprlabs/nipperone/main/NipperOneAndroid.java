@@ -183,7 +183,7 @@ public class NipperOneAndroid extends Activity {
 
     private UsbSerialDriver sDriver = null;
     private SerialInputOutputManager mSerialIoManager;
-    private UsbManager mUsbManager;
+
     private PendingIntent mPermissionIntent = null;
     private IntentFilter tickReceiverIntentFilter = null;
 
@@ -229,50 +229,7 @@ public class NipperOneAndroid extends Activity {
      *  Define the broadcast receiver that handles incoming broadcast messages.
      *  Our clock tick and USB connections are monitored here.
      */
-    private final BroadcastReceiver tickReceiver = new BroadcastReceiver(){
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if ( Intent.ACTION_TIME_TICK.equals(action) ) {
-
-                mCalendar.setTimeInMillis(System.currentTimeMillis());
-                mClockText.setText(DateFormat.format(mFormat, mCalendar));
-
-            }  else if ( UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action) ) {
-                //mMessage.append("\nThe Receiver is plugged in!\n");
-
-
-            } else if ( UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action) ) {
-                // Either the receiver has been rebooted or physically disconnected from the tablet.
-                // Bring this to the user's attention.
-                receiverNotConnected();
-
-            } else if ( "org.prss.nprlabs.nipperonealerter.USBPERMISSION".equals(action) ) {
-                for (final UsbDevice device : mUsbManager.getDeviceList().values()) {
-                    if (device.getVendorId() == 0x1320) {
-                        Log.d(TAG, "Found Catena USB device: " + device);
-                        //mMessage.append("Found the NipperOne Radio receiver\n");
-
-                        if ( mUsbManager.hasPermission(device) ) {
-                            final List<UsbSerialDriver> drivers =
-                                    UsbSerialProber.probeSingleDevice(mUsbManager, device);
-                            if (drivers.isEmpty()) {
-                                Log.d(TAG, "  - No UsbSerialDriver available.");
-                                //mMessage.append("\nThe Nipper One receiver does NOT have its driver assigned.\nPlease Press the Receiver's Reset button.\n");
-                            } else {
-                                for (UsbSerialDriver driver : drivers) {
-                                    Log.d(TAG, "  + " + driver);
-                                    //mMessage.append("tickReceiver:The NipperOne receiver will be using the following driver:\n" + driver + "\n");
-                                }
-                            }
-                        } else {
-                            //mMessage.append("\nThis is distressing:\nWe still don't have permission to access the Catena Receiver.\n");
-                        }
-                    }
-                }
-            }
-        }
-    };
+    private final BroadcastReceiver tickReceiver = new MyReceiver();
 
 //    /**
 //     * Listens for a click on the EAS Short Codes TextViews, and displays a Toast object with a
@@ -536,7 +493,7 @@ public class NipperOneAndroid extends Activity {
 
         // Set up the USB Manager and look for the NipperOne receiver. We create it here, once,
         // so onResume can use it.
-        mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
+        NipperConstants.mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
         //probeUSBforReceiver();
 
         // DEBUG TEXT TO PLAY WITH SCROLLING:
@@ -744,15 +701,15 @@ public class NipperOneAndroid extends Activity {
      *
      */
     private void probeUSBforReceiver() {
-        for (final UsbDevice device : mUsbManager.getDeviceList().values()) {
+        for (final UsbDevice device : NipperConstants.mUsbManager.getDeviceList().values()) {
             if (device.getVendorId() == 0x1320) {
                 Log.d(TAG, "Found Catena (NipperOne) USB device: " + device);
                 //mMessage.append("Found the NipperOne receiver.\n");
                 // Make sure we have permission to access the Receiver, if not, ask the user 
                 // if it's OK to access the receiver.
-                if ( mUsbManager.hasPermission(device) ) {
+                if ( NipperConstants.mUsbManager.hasPermission(device) ) {
                     final List<UsbSerialDriver> drivers =
-                            UsbSerialProber.probeSingleDevice(mUsbManager, device);
+                            UsbSerialProber.probeSingleDevice(NipperConstants.mUsbManager, device);
                     if (drivers.isEmpty()) {
                         Log.d(TAG, "  - No UsbSerialDriver available.");
                         //mMessage.append("\nThe NipperOne receiver does NOT have its software driver assigned. \nPlease Press the Receiver's Reset button.\n");
@@ -770,7 +727,7 @@ public class NipperOneAndroid extends Activity {
                 } else {
                     // Let's get permission from the user.
                     mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent("org.prss.nprlabs.nipperonealerter.USBPERMISSION"),0);
-                    mUsbManager.requestPermission(device, mPermissionIntent);
+                    NipperConstants.mUsbManager.requestPermission(device, mPermissionIntent);
                 }
             }
         }
@@ -1421,8 +1378,8 @@ public class NipperOneAndroid extends Activity {
      */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @SuppressWarnings("deprecation")
-    private void receiverNotConnected() {
-        if (HaveSetAlarmScreen) clearAlarmScreen();
+    public static void receiverNotConnected() {
+//        if (HaveSetAlarmScreen) clearAlarmScreen();
         //mMessage.append(messageReceiverDisconnected);
 //        mBeaconStatus.setText("");
 //        mSignalLevel.setText("");

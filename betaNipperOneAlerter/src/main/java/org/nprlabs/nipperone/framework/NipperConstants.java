@@ -1,5 +1,7 @@
 package org.nprlabs.nipperone.framework;
 
+import android.hardware.usb.UsbManager;
+
 import org.nprlabs.nipperone.main.NipperOneAndroid;
 
 public class NipperConstants {
@@ -40,5 +42,7 @@ public class NipperConstants {
     public static final byte receiverReturnTypeStatus = -18;
     // 0xED (-19 unsigned) in ReturnType indicates a Notification message
     public static final byte receiverReturnTypeNotification = -19;
+
+    public static UsbManager mUsbManager;
 
 }
