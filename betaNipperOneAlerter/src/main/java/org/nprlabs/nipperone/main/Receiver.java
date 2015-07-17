@@ -369,7 +369,7 @@ public class Receiver {
    * @param data A byte array containing the alert message, and possibly also containing the 9 byte header.
    * @param HasNoHeader Flag indicating if the message text has a header, if not, is a continuation of the alert message. 
    */
-   public MessageImpl updateReceiverAlertMessage(byte[] data, Boolean HasNoHeader, MessageImpl myMsg ){
+   public AlertImpl updateReceiverAlertMessage(byte[] data, Boolean HasNoHeader, AlertImpl myMsg ){
        
        
        // This flag disables this function (the updateReceiverEASData() function will then handle the alert messages).
@@ -510,7 +510,7 @@ public class Receiver {
     * </pre>
     * @param data A byte array containing RDS EAS Notification data from the NPR Labs FM RDS Receiver.
     */
-   public MessageImpl updateReceiverEASData(byte[] data, MessageImpl myMsg) {
+   public AlertImpl updateReceiverEASData(byte[] data, AlertImpl myMsg) {
        int m = data.length - 1;
        int msbC, lsbC, msbD, lsbD;
        
@@ -597,11 +597,11 @@ public class Receiver {
                    alerttextSegment = lsbD & 0x3F;
                   
                    
-//                       NipperOneAndroid.mEASCodesCertainty.setText(codeCertainty.get(shortcodeCertainty));
-//                       NipperOneAndroid.mEASCodesSeverity.setText(codeSeverity.get(shortcodeSeverity));
-//                       NipperOneAndroid.mEASCodesUrgency.setText(codeUrgency.get(shortcodeUrgency));
-//                       NipperOneAndroid.mEASCodesCategory.setText(codeCategory.get(shortcodeCategory));
-//                       NipperOneAndroid.mEASCodesResponse.setText("Take Action: " + codeResponse.get(shortcodeResponse));
+//                       NipperActivity.mEASCodesCertainty.setText(codeCertainty.get(shortcodeCertainty));
+//                       NipperActivity.mEASCodesSeverity.setText(codeSeverity.get(shortcodeSeverity));
+//                       NipperActivity.mEASCodesUrgency.setText(codeUrgency.get(shortcodeUrgency));
+//                       NipperActivity.mEASCodesCategory.setText(codeCategory.get(shortcodeCategory));
+//                       NipperActivity.mEASCodesResponse.setText("Take Action: " + codeResponse.get(shortcodeResponse));
                    
                    //Log.d("ALERT TEXT COUNT:",String.format("%d", alerttextCount));
                    //Log.d("ALERT TEXT CURRENT SEGMENT:",String.format("%d", alerttextSegment));

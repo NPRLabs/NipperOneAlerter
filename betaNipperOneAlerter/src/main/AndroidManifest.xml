@@ -23,7 +23,7 @@
 
         <!-- Our main activity for the alerting and interface to the NipperOne receiver -->  
         <activity
-            android:name="org.nprlabs.nipperone.main.NipperOneAndroid"
+            android:name="org.nprlabs.nipperone.main.NipperActivity"
             android:screenOrientation="landscape"
             android:launchMode="singleInstance" >
             

@@ -1,10 +1,9 @@
 package org.nprlabs.nipperone.framework;
 
+import android.hardware.usb.UsbManager;
 import android.widget.TextView;
 
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
-
-import org.nprlabs.nipperone.main.NipperOneAndroid;
 
 public class NipperConstants {
     
@@ -50,8 +49,10 @@ public class NipperConstants {
     public static int messageCount = 0;
     public static String versionNipperOneReceiver = "unknown";
 
+    public static UsbManager mUsbManager;
     public static UsbSerialDriver sDriver = null;
 
     public static TextView mStationFreq;
+
 
 }

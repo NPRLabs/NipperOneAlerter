@@ -9,7 +9,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import org.nprlabs.nipperone.framework.DatabaseHandler;
-import org.nprlabs.nipperone.main.MessageImpl;
+import org.nprlabs.nipperone.main.AlertImpl;
 import org.prss.nprlabs.nipperonealerter.R;
 
 /**
@@ -71,7 +71,7 @@ public class CustomDialog extends Dialog implements View.OnClickListener {
 
     private void displayMessage(){
 
-        MessageImpl msg = dbHandler.getMessage(dbHandler.getMessageCount());
+        AlertImpl msg = dbHandler.getMessage(dbHandler.getMessageCount());
         category.setText(msg.getMsgCategory());
         certainty.setText(msg.getMsgCertainty());
         severity.setText(msg.getMsgSeverity());

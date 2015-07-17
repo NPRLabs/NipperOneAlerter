@@ -10,6 +10,8 @@ import android.util.Log;
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
 
+import org.nprlabs.nipperone.framework.NipperConstants;
+
 import java.util.List;
 
 /**
@@ -18,7 +20,7 @@ import java.util.List;
 public class MyReceiver extends BroadcastReceiver {
 
     private String TAG = "BroadcastReceiver";
-    private UsbManager mUsbManager;
+
 
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
@@ -33,18 +35,18 @@ public class MyReceiver extends BroadcastReceiver {
         } else if ( UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action) ) {
             // Either the receiver has been rebooted or physically disconnected from the tablet.
             // Bring this to the user's attention.
-            NipperOneAndroid.receiverNotConnected();
+            NipperActivity.receiverNotConnected();
             //TODO add the stop background service here.
 
         } else if ( "org.prss.nprlabs.nipperonealerter.USBPERMISSION".equals(action) ) {
-            for (final UsbDevice device : mUsbManager.getDeviceList().values()) {
+            for (final UsbDevice device : NipperConstants.mUsbManager.getDeviceList().values()) {
                 if (device.getVendorId() == 0x1320) {
                     Log.d(TAG, "Found Catena USB device: " + device);
                     //mMessage.append("Found the NipperOne Radio receiver\n");
 
-                    if ( mUsbManager.hasPermission(device) ) {
+                    if (NipperConstants.mUsbManager.hasPermission(device) ) {
                         final List<UsbSerialDriver> drivers =
-                                UsbSerialProber.probeSingleDevice(mUsbManager, device);
+                                UsbSerialProber.probeSingleDevice(NipperConstants.mUsbManager, device);
                         if (drivers.isEmpty()) {
                             Log.d(TAG, "  - No UsbSerialDriver available.");
                             //mMessage.append("\nThe Nipper One receiver does NOT have its driver assigned.\nPlease Press the Receiver's Reset button.\n");

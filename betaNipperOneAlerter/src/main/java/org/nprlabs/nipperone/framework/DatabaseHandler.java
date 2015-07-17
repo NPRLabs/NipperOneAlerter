@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import org.nprlabs.nipperone.main.MessageImpl;
+import org.nprlabs.nipperone.main.AlertImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +81,7 @@ public class DatabaseHandler extends SQLiteOpenHelper{
      * adding a new message
      * @param msg the message to add to the database
      */
-    public void addMessage(MessageImpl msg){
+    public void addMessage(AlertImpl msg){
         SQLiteDatabase db = this.getWritableDatabase();
         
         ContentValues values = new ContentValues();
@@ -110,7 +110,7 @@ public class DatabaseHandler extends SQLiteOpenHelper{
      * @param id
      * @return
      */
-    public MessageImpl getMessage(int id){
+    public AlertImpl getMessage(int id){
         SQLiteDatabase db = this.getReadableDatabase();
         
         Cursor cursor = db.query(TABLE_MESSAGES, new String[] { KEY_ID, KEY_EAS_EVENT,
@@ -119,7 +119,7 @@ public class DatabaseHandler extends SQLiteOpenHelper{
         if(cursor != null)
             cursor.moveToFirst();
 
-        MessageImpl msg = new MessageImpl();
+        AlertImpl msg = new AlertImpl();
 
         msg.setId(Integer.parseInt(cursor.getString(0)));
         msg.setEvent(cursor.getString(1));
@@ -138,8 +138,8 @@ public class DatabaseHandler extends SQLiteOpenHelper{
         return msg;
     }
 
-    public List<MessageImpl> getAllMessages(){
-        List<MessageImpl> msgList = new ArrayList<MessageImpl>();
+    public List<AlertImpl> getAllMessages(){
+        List<AlertImpl> msgList = new ArrayList<AlertImpl>();
         //Select all query
         String selectQuery = "SELECT * FROM " + TABLE_MESSAGES;
 
@@ -149,7 +149,7 @@ public class DatabaseHandler extends SQLiteOpenHelper{
         //looping through all rows and adding to list
         if(cursor.moveToFirst()){
             do{    
-                MessageImpl msg = new MessageImpl();
+                AlertImpl msg = new AlertImpl();
                 msg.setId(Integer.parseInt(cursor.getString(0)));
                 msg.setEvent(cursor.getString(1));
                 msg.setMsgAction(cursor.getString(2));
@@ -185,7 +185,7 @@ public class DatabaseHandler extends SQLiteOpenHelper{
      * @param msg
      * @return
      */
-    public int updateMessage(MessageImpl msg){
+    public int updateMessage(AlertImpl msg){
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -211,7 +211,7 @@ public class DatabaseHandler extends SQLiteOpenHelper{
     }
 
 
-    public void deleteMessage(MessageImpl msg){
+    public void deleteMessage(AlertImpl msg){
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_MESSAGES, KEY_ID + " = ?", new String[]{String.valueOf(msg.getId())});
         db.close();

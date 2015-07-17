@@ -8,7 +8,6 @@ package org.nprlabs.nipperone.main;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.graphics.drawable.Drawable;
-import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 
 import org.nprlabs.nipperone.fragments.CustomDialog;
@@ -23,9 +22,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.os.Messenger;
+import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
@@ -54,9 +54,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
-
-import com.hoho.android.usbserial.driver.UsbSerialDriver;
-import com.hoho.android.usbserial.driver.UsbSerialProber;
 
 /* TODO on NipperOne Alerter app
 
@@ -122,7 +119,7 @@ import com.hoho.android.usbserial.driver.UsbSerialProber;
  *  --- The following determines which method to use for gathering alert text
  * key_messagelinefeed
  */
-public class NipperOneAndroid extends Activity {
+public class NipperActivity extends Activity {
 
     /**
      * Copyright and attribution message for the "About..." dialog.
@@ -174,10 +171,9 @@ public class NipperOneAndroid extends Activity {
     private final static String m24 = "k:mm";
     private String mFormat;
 
-//    private UsbSerialDriver sDriver = null;
 //    private SerialInputOutputManager mSerialIoManager;
-    private UsbManager mUsbManager;
 //    private PendingIntent mPermissionIntent = null;
+
     private IntentFilter tickReceiverIntentFilter = null;
 
     // These indicate which fragment we want to display
@@ -281,9 +277,9 @@ public class NipperOneAndroid extends Activity {
      */
     private Context parentContext;
 
-    private static MessageImpl myMsg = new MessageImpl();
+    private static AlertImpl myMsg = new AlertImpl();
 
-    private MessageImpl[] messageArray = new MessageImpl[10];
+    private AlertImpl[] messageArray = new AlertImpl[10];
 
     private Button button;
     private Button button2;
@@ -294,10 +290,23 @@ public class NipperOneAndroid extends Activity {
 
     boolean messageComplete = false;
 
-    MessageImpl newMsg = new MessageImpl();
+    AlertImpl newMsg = new AlertImpl();
 
-    private ServiceConnection sConn;
-    private Messenger messenger;
+    private Messenger mService = null;
+    private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mService = new Messenger(service);
+            Log.d("Service Connection", "");
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mService = null;
+        }
+    };
+    private Messenger mMessenger = new Messenger(new MessageHandler());
+    private boolean mIsBound = false;
 
     /*
      * (non-Javadoc)
@@ -402,28 +411,58 @@ public class NipperOneAndroid extends Activity {
         // Load any app preferences (not receiver config, but only app stuff).
         loadPrefs();
 
-
-        Intent background = new Intent(this.getApplicationContext(), MyService.class);
-
-        //creating a service connection and the overriding the 2 necessary methods.
-        sConn = new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                messenger = new Messenger(service);
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-                messenger = null;
-            }
-        };
-
-        bindService(background, sConn, Context.BIND_AUTO_CREATE);
-
-
+        checkIfServiceIsRunning();
     } // END onCreate()
 
+    private void checkIfServiceIsRunning(){
+        if(MyService.isRunning()){
+            doBindService();
+        }
+    }
+    public void doBindService(){
 
+        //creating a service connection and overriding the 2 necessary methods.
+
+        bindService(new Intent(this.getApplicationContext(), MyService.class), mConnection, Context.BIND_AUTO_CREATE);
+        mIsBound = true;
+    }
+
+    public void doUnbindService(){
+        if(mIsBound){
+            //if we have received the service and hence registered with it, then now is the time
+            // to unregister
+            if(mService != null){
+
+                Message msg = Message.obtain(null, MyService.MSG_UNREGISTER_CLIENT);
+                msg.replyTo = mMessenger;
+                try {
+                    mService.send(msg);
+                } catch (RemoteException e) {
+                    //You could print the stack track, but it's not necessary
+                    //e.printStackTrace();
+                }
+            }
+            Log.d(TAG, "unbinding the service from client");
+            unbindService(mConnection);
+            mIsBound = false;
+
+        }
+    }
+
+
+    private void sendMessageToService(int valueToSend){
+        if(mIsBound){
+            if(mService != null){
+                try{
+                    Message msg = Message.obtain(null, MyService.DONE, valueToSend, 0);
+                    msg.replyTo = mMessenger;
+                    mService.send(msg);
+                }catch (RemoteException e){
+                }
+            }
+        }
+
+    }
     /// -----------| Variables, functions for Nav + title hiding |------------
 
     /* onPostCreate
@@ -485,14 +524,33 @@ public class NipperOneAndroid extends Activity {
         // TODO Or should we return "true" ?
     }
 
+    @Override
+    public void onPause(){
+
+
+
+    }
+
+    @Override
+    public void onResume(){
+
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        doUnbindService();
+
+    }
+
     /*
     * (non-Javadoc)
     * @see android.app.Activity#onMenuItemSelected(int, android.view.MenuItem)
     */
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        myReceiver.requestReceiverConfiguration(sDriver);
-        myReceiver.requestReceiverVersion(sDriver);
+        myReceiver.requestReceiverConfiguration(NipperConstants.sDriver);
+        myReceiver.requestReceiverVersion(NipperConstants.sDriver);
         // Handles presses on the action bar items
         int id = item.getItemId();
         if (id == R.id.action_settings) {
@@ -517,7 +575,7 @@ public class NipperOneAndroid extends Activity {
             builder.setPositiveButton("Reset Receiver to Default Settings", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     // User clicked OK button
-                    myReceiver.writeReceiverConfigurationDefault(sDriver);
+                    myReceiver.writeReceiverConfigurationDefault(NipperConstants.sDriver);
                 }
             });
             builder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
@@ -581,7 +639,7 @@ public class NipperOneAndroid extends Activity {
      * Displays the app version, Receiver firmware version, copyright information, and receiver FIPS code in a message box.
      */
     private void openAbout() {
-        myReceiver.requestReceiverVersion(sDriver);
+        myReceiver.requestReceiverVersion(NipperConstants.sDriver);
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String keyfips = prefs.getString("key_FIPS","");
@@ -631,7 +689,7 @@ public class NipperOneAndroid extends Activity {
         Intent intent = new Intent();
         // Pass the parameter to indicate we want to show the settings fragment.
         intent.putExtra("NipperOneFragmentMode",FragmentMode_HELP);
-        intent.setClass(NipperOneAndroid.this, SetPreferenceActivity.class);
+        intent.setClass(NipperActivity.this, SetPreferenceActivity.class);
         startActivity(intent);
     }
 
@@ -645,8 +703,8 @@ public class NipperOneAndroid extends Activity {
         Intent intent = new Intent();
 
         // Pass the parameter to indicate we want to show the settings fragment.
-        intent.putExtra("NipperOneFragmentMode",FragmentMode_SETTINGS);
-        intent.setClass(NipperOneAndroid.this, SetPreferenceActivity.class);
+        intent.putExtra("NipperOneFragmentMode", FragmentMode_SETTINGS);
+        intent.setClass(NipperActivity.this, SetPreferenceActivity.class);
         startActivity(intent);
     }
 
@@ -692,13 +750,13 @@ public class NipperOneAndroid extends Activity {
 //        toast.show();
         messageCount = dbHandler.getMessageCount();
         String tmpString = "";
-        List<MessageImpl> messageList = dbHandler.getAllMessages();
+        List<AlertImpl> messageList = dbHandler.getAllMessages();
 
         if(messageCount == 0){tmpString = "There are currently no messages in the database to display.";}
         else {
 
             int i = 0;
-            for (MessageImpl msg : messageList) {
+            for (AlertImpl msg : messageList) {
                 tmpString += String.format("ID: %d\n EVENT: %s ACTION: %s\n\n", msg.getId(), msg.getEventString(), msg.getMsgAction());
             }
         }
@@ -767,7 +825,7 @@ public class NipperOneAndroid extends Activity {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String reqFIPS = prefs.getString("key_reqFIPS", null);
         if (reqFIPS != null) {
-            myReceiver.writeReceiverConfigurationFIPS(sDriver, reqFIPS);
+            myReceiver.writeReceiverConfigurationFIPS(NipperConstants.sDriver, reqFIPS);
 
             // If we have descriptive text about the location, show it.
             // Else just show the user the new FIPS code.
@@ -909,7 +967,7 @@ public class NipperOneAndroid extends Activity {
                 if (!HaveSetAlarmScreen ) {
 
                     messageCount++;
-                    dbHandler.addMessage(new MessageImpl());
+                    dbHandler.addMessage(new AlertImpl());
                     myMsg = dbHandler.getMessage(messageCount);
                     System.out.println("NEW MESSAGE ADDED! " + myMsg.ShortMsgtoString());
 
@@ -918,10 +976,10 @@ public class NipperOneAndroid extends Activity {
 //                    messageLayout.setVisibility(RelativeLayout.VISIBLE);
 //
 //                    if (Build.VERSION.SDK_INT >= 16) {
-//                        messageLayout.setBackground(NipperOneAndroid.drawMessageAlarm);
+//                        messageLayout.setBackground(NipperActivity.drawMessageAlarm);
 //                    }
 //                    else {
-//                        messageLayout.setBackground(NipperOneAndroid.drawMessageAlarm);
+//                        messageLayout.setBackground(NipperActivity.drawMessageAlarm);
 //                    }
 
                     //mEASEvent.setTextColor(nipperRes.getColor(R.color.defaultTextColorMessageAlarm));
@@ -1035,25 +1093,41 @@ public class NipperOneAndroid extends Activity {
         mStationFreq.setText("DISCONNECTED FROM RECEIVER");
     }
 
-    class ResponseHandler extends Handler {
+    static class MessageHandler extends PauseHandler {
+
+        protected Activity activity;
+
+        private static final int DONE = 0;
+        private static final int UPDATE_TABLET_TEXT_VIEW = 1;
+        private static final int UPDATE_BANDSCAN = 2;
+        private static final int NEW_ALERT = 3;
+        private static final int ALERT_DONE = 4;
+
+        final void setActivity(Activity activity){
+            this.activity = activity;
+        }
 
         @Override
-        public void handleMessage(android.os.Message msg){
-            int respCode = msg.what;
+        final protected boolean storeMessage(android.os.Message message){
+            //All messages are stored by default
+            return true;
+        }
 
-            switch(respCode){
-                case MyService.UPDATE_TABLET_TEXT_VIEW:
+        @Override
+        final protected void processMessage(android.os.Message msg){
 
-                    break;
-                case MyService.NEW_ALERT:
+            final Activity activity = this.activity;
+            if (activity != null){
+                switch (msg.what){
 
-                    break;
-                case MyService.ALERT_DONE:
-                    break;
-                default:
-                    break;
+                    case UPDATE_TABLET_TEXT_VIEW:
+                        break;
+                    default:
+                        break;
+                }
             }
         }
+
     }
 
 

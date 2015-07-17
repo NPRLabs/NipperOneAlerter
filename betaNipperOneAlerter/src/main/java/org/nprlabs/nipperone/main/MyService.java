@@ -2,18 +2,12 @@ package org.nprlabs.nipperone.main;
 
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
-import android.os.RemoteException;
-import android.text.format.DateFormat;
 import android.util.Log;
 
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
@@ -35,27 +29,27 @@ public class MyService extends Service {
     private static final String TAG = "MyService";
 
 
-    static final int DONE = 11;
+    static final int DONE = 0;
     static final int UPDATE_TABLET_TEXT_VIEW = 1;
-    static final int NEW_ALERT = 2;
+    static final int UPDATE_BANDSCAN = 2;
+    static final int NEW_ALERT = 3;
     static final int ALERT_DONE = 4;
+    static final int MSG_UNREGISTER_CLIENT = 5;
 
 
-    boolean isRunning = false;
+    static boolean isRunning = false;
 
     private Receiver myReceiver = new Receiver();
-    private MessageImpl myMsg = new MessageImpl();
+    private AlertImpl myMsg = new AlertImpl();
     private DatabaseHandler dbHandler;
     private SerialInputOutputManager.Listener mListener;
 
-    private UsbSerialDriver sDriver = null;
     private SerialInputOutputManager mSerialIoManager;
-    private UsbManager mUsbManager;
     private PendingIntent mPermissionIntent = null;
+    private Messenger mClient = null;
+    private Messenger mMessenger = new Messenger(new PauseHandler());
 
 
-
-    private final Messenger mMessenger = new Messenger(new PauseHandler());
 
     @Override
     public void onCreate() {
@@ -63,9 +57,8 @@ public class MyService extends Service {
         Log.d(TAG, "S:onCreate: Service Started.");
 
         this.isRunning = true;
-        //this.backgroundThread = new Thread(myTask);
-
         dbHandler = DatabaseHandler.getInstance(this);
+        mClient =
 
         mListener = new SerialInputOutputManager.Listener() {
             @Override
@@ -103,7 +96,9 @@ public class MyService extends Service {
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
 
+        isRunning = false;
     }
 
 
@@ -161,8 +156,10 @@ public class MyService extends Service {
         if (data[NipperConstants.receiverByteReturnType] == NipperConstants.receiverReturnTypeNotification) {
             switch (data[NipperConstants.receiverByteReturnMode]){
                 case NipperConstants.RECEIVER_MODE_STATUS:
-                    updateTabletTextViews(data);
+                    //updateTabletTextViews(data);
                     //System.out.println("The tablet views were updated");
+                    sendMessageToUI(UPDATE_TABLET_TEXT_VIEW, data);
+
                     break;
                 case NipperConstants.RECEIVER_MODE_TEXT:
                     myMsg = myReceiver.updateReceiverAlertMessage(data, false, myMsg);
@@ -179,7 +176,9 @@ public class MyService extends Service {
 //                    System.out.println("UPDATE");
                     break;
                 case NipperConstants.RECEIVER_MODE_BANDSCAN:
-                    updateReceiverBandScan(data);
+                    //updateReceiverBandScan(data);
+
+                    sendMessageToUI(UPDATE_BANDSCAN, data);
                     break;
                 case NipperConstants.RECEIVER_MODE_EASDATA:
                     myMsg = myReceiver.updateReceiverEASData(data, myMsg);
@@ -239,15 +238,15 @@ public class MyService extends Service {
      *
      */
     private void probeUSBforReceiver() {
-        for (final UsbDevice device : mUsbManager.getDeviceList().values()) {
+        for (final UsbDevice device : NipperConstants.mUsbManager.getDeviceList().values()) {
             if (device.getVendorId() == 0x1320) {
                 Log.d(TAG, "Found Catena (NipperOne) USB device: " + device);
                 //mMessage.append("Found the NipperOne receiver.\n");
                 // Make sure we have permission to access the Receiver, if not, ask the user
                 // if it's OK to access the receiver.
-                if ( mUsbManager.hasPermission(device) ) {
+                if (NipperConstants.mUsbManager.hasPermission(device) ) {
                     final List<UsbSerialDriver> drivers =
-                            UsbSerialProber.probeSingleDevice(mUsbManager, device);
+                            UsbSerialProber.probeSingleDevice(NipperConstants.mUsbManager, device);
                     if (drivers.isEmpty()) {
                         Log.d(TAG, "  - No UsbSerialDriver available.");
                         //mMessage.append("\nThe NipperOne receiver does NOT have its software driver assigned. \nPlease Press the Receiver's Reset button.\n");
@@ -257,7 +256,7 @@ public class MyService extends Service {
                         // the incoming receiver data, once we've set sDriver to the proper CDC driver.
                         for (UsbSerialDriver driver : drivers) {
                             // Most important line in the function: Assigns the driver to sDriver.
-                            sDriver = driver;
+                            NipperConstants.sDriver = driver;
                             Log.d(TAG, "  + " + driver);
                             //mMessage.append("Ready...\n");
                         }
@@ -265,7 +264,7 @@ public class MyService extends Service {
                 } else {
                     // Let's get permission from the user.
                     mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent("org.prss.nprlabs.nipperonealerter.USBPERMISSION"),0);
-                    mUsbManager.requestPermission(device, mPermissionIntent);
+                    NipperConstants.mUsbManager.requestPermission(device, mPermissionIntent);
                 }
             }
         }
@@ -289,9 +288,9 @@ public class MyService extends Service {
      * starts its async process.
      */
     private void startIoManager() {
-        if (sDriver != null) {
+        if (NipperConstants.sDriver != null) {
             Log.i(TAG, "Starting io manager ..");
-            mSerialIoManager = new SerialInputOutputManager(sDriver, mListener);
+            mSerialIoManager = new SerialInputOutputManager(NipperConstants.sDriver, mListener);
            // mExecutor.submit(mSerialIoManager);
             // Not strictly necessary but nice to have the firmware version available.
         }
@@ -304,45 +303,21 @@ public class MyService extends Service {
         stopIoManager();
         startIoManager();
     }
-    private void updateReceiverBandScan(byte[] data){
-
-    }
-
-    private void updateTabletTextViews(byte[] data){
-
-    }
 
 
     /**
-     * inner class that handles the communication between the client and the service.
+     *
+     * @param valueToSend
+     * @param data
      */
-    private static class PauseHandler extends Handler {
+    private void sendMessageToUI(int valueToSend, byte[] data){
 
+        Log.i(TAG, "Sending a message to the UI");
 
-        @Override
-        public void handleMessage(Message msg) {
-            //this is the action
-            int msgType = msg.what;
-
-            switch (msgType) {
-                case UPDATE_TABLET_TEXT_VIEW:
-                    try {
-                        //Incoming Data
-                        String data = msg.getData().getString("data");
-                        Message resp = Message.obtain(null, DONE);
-                        Bundle bResp = new Bundle();
-                        bResp.putString("respData", data.toUpperCase());
-                        resp.setData(bResp);
-
-                        msg.replyTo.send(resp);
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                default:
-                    super.handleMessage(msg);
-                    break;
-            }
-        }
+        Bundle msgBundle = new Bundle();
+        msgBundle.putByteArray("byteArray", data);
+        Message msg = new Message();
+        msg.setData(msgBundle);
+        resultHandler.sendMessage(msg);
     }
 }
