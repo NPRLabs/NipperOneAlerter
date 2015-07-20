@@ -5,6 +5,8 @@ import android.widget.TextView;
 
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 
+import org.nprlabs.nipperone.main.Receiver;
+
 public class NipperConstants {
     
     // These are bits in mydata[46] and correspond to the
@@ -53,6 +55,7 @@ public class NipperConstants {
     public static UsbSerialDriver sDriver = null;
 
     public static TextView mStationFreq;
+    public static Receiver myReceiver = new Receiver();
 
 
 }

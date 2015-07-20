@@ -68,7 +68,8 @@ public class PauseHandler extends Handler {
 
         if(paused){
             if(storeMessage(msg)){
-                Message msgCopy = new Message();msgCopy.copyFrom(msg);
+                Message msgCopy = new Message();
+                msgCopy.copyFrom(msg);
                 messageQueueBuffer.add(msgCopy);
             }
         }else{

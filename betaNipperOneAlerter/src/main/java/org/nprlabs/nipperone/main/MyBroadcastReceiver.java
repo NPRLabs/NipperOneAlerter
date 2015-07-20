@@ -16,8 +16,9 @@ import java.util.List;
 
 /**
  * Created by kbrudos on 7/15/2015.
+ *
  */
-public class MyReceiver extends BroadcastReceiver {
+public class MyBroadcastReceiver extends BroadcastReceiver {
 
     private String TAG = "BroadcastReceiver";
 
@@ -30,7 +31,6 @@ public class MyReceiver extends BroadcastReceiver {
         }  else if ( UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action) ) {
             //mMessage.append("\nThe Receiver is plugged in!\n");
             //TODO add the start background service here!!
-
 
         } else if ( UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action) ) {
             // Either the receiver has been rebooted or physically disconnected from the tablet.

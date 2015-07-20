@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.RemoteException;
 import android.util.Log;
 
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
@@ -17,6 +18,7 @@ import com.hoho.android.usbserial.util.SerialInputOutputManager;
 import org.nprlabs.nipperone.framework.DatabaseHandler;
 import org.nprlabs.nipperone.framework.NipperConstants;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -28,26 +30,41 @@ public class MyService extends Service {
 
     private static final String TAG = "MyService";
 
-
-    static final int DONE = 0;
-    static final int UPDATE_TABLET_TEXT_VIEW = 1;
+    final static int SET_CLIENT = 0;
+    static final int REMOVE_CLIENT = 1;
     static final int UPDATE_BANDSCAN = 2;
-    static final int NEW_ALERT = 3;
-    static final int ALERT_DONE = 4;
-    static final int MSG_UNREGISTER_CLIENT = 5;
+    static final int UPDATE_TABLET_TEXT_VIEW = 3;
+    static final int NEW_ALERT = 4;
+    static final int ALERT_DONE = 5;
 
 
     static boolean isRunning = false;
 
-    private Receiver myReceiver = new Receiver();
     private AlertImpl myMsg = new AlertImpl();
     private DatabaseHandler dbHandler;
-    private SerialInputOutputManager.Listener mListener;
+
+    private SerialInputOutputManager.Listener mListener = new SerialInputOutputManager.Listener() {
+        @Override
+        public void onRunError(Exception e) {
+            Log.d(TAG, "SerialInputOutputManagerListener Runner stopped.");
+        }
+        @Override
+        public void onNewData(final byte[] data) {
+            new Runnable() {
+                @Override
+                public void run() {
+                    processReceivedData(data);  //NipperOneAlerter.this.updateReceivedData(data);
+                }
+            };
+        }
+    };
 
     private SerialInputOutputManager mSerialIoManager;
     private PendingIntent mPermissionIntent = null;
     private Messenger mClient = null;
-    private Messenger mMessenger = new Messenger(new PauseHandler());
+    private Messenger mMessenger = new Messenger(new IncomingHandler());
+
+    private String displayFreqString = "";
 
 
 
@@ -58,35 +75,22 @@ public class MyService extends Service {
 
         this.isRunning = true;
         dbHandler = DatabaseHandler.getInstance(this);
-        mClient =
-
-        mListener = new SerialInputOutputManager.Listener() {
-            @Override
-            public void onRunError(Exception e) {
-                Log.d(TAG, "SerialInputOutputManagerListener Runner stopped.");
-            }
-            @Override
-            public void onNewData(final byte[] data) {
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        processReceivedData(data);  //NipperOneAlerter.this.updateReceivedData(data);
-                    }
-                };
-            }
-        };
     }
 
+    public static boolean getIsRunning(){
+        return isRunning;
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
+        Log.d(TAG, "service bound");
         return mMessenger.getBinder();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
 
-        Log.d(TAG, "Service Started");
+        Log.d(TAG, "Service Started, On Start command");
         if(!this.isRunning){
             this.isRunning = true;
         }
@@ -157,15 +161,15 @@ public class MyService extends Service {
             switch (data[NipperConstants.receiverByteReturnMode]){
                 case NipperConstants.RECEIVER_MODE_STATUS:
                     //updateTabletTextViews(data);
-                    //System.out.println("The tablet views were updated");
-                    sendMessageToUI(UPDATE_TABLET_TEXT_VIEW, data);
+                    System.out.println("The tablet views were updated");
+                    sendMessageToUI(UPDATE_TABLET_TEXT_VIEW);
 
                     break;
                 case NipperConstants.RECEIVER_MODE_TEXT:
-                    myMsg = myReceiver.updateReceiverAlertMessage(data, false, myMsg);
+                    myMsg = NipperConstants.myReceiver.updateReceiverAlertMessage(data, false, myMsg);
 //                    System.out.println("#1THE MESSAGE THAT WAS RETURNED: " + myMsg.ShortMsgtoString());
 
-                    NipperConstants.expectingMoreAlertText = myReceiver.get_expectingMoreAlertText();
+                    NipperConstants.expectingMoreAlertText = NipperConstants.myReceiver.get_expectingMoreAlertText();
 
                     if(dbHandler.msgExists(NipperConstants.messageCount)){
                         dbHandler.updateMessage(myMsg);
@@ -173,15 +177,14 @@ public class MyService extends Service {
                     }else{
 //                        System.out.println("DID NOT UPDATE THE DATABASE, CASE WAS FALSE");
                     }
-//                    System.out.println("UPDATE");
+                    System.out.println("UPDATE");
                     break;
                 case NipperConstants.RECEIVER_MODE_BANDSCAN:
-                    //updateReceiverBandScan(data);
-
-                    sendMessageToUI(UPDATE_BANDSCAN, data);
+                    updateReceiverBandscan(data);
+                    sendMessageToUI(UPDATE_BANDSCAN);
                     break;
                 case NipperConstants.RECEIVER_MODE_EASDATA:
-                    myMsg = myReceiver.updateReceiverEASData(data, myMsg);
+                    myMsg = NipperConstants.myReceiver.updateReceiverEASData(data, myMsg);
                     //System.out.println("This is what Message String is currently: " + myMsg.getMsgString());
                     if(NipperConstants.isAlarm && dbHandler.msgExists(NipperConstants.messageCount)){
                         dbHandler.updateMessage(myMsg);
@@ -196,11 +199,11 @@ public class MyService extends Service {
         } else if  (data[NipperConstants.receiverByteReturnType] == NipperConstants.receiverReturnTypeStatus) {
             switch (data[NipperConstants.receiverByteReturnMode]){
                 case NipperConstants.RECEIVER_MODE_VERSION:
-                    NipperConstants.versionNipperOneReceiver = myReceiver.receiveReceiverVersion(data);
+                    NipperConstants.versionNipperOneReceiver = NipperConstants.myReceiver.receiveReceiverVersion(data);
                     //Log.d("versionNipperOneReceiver", versionNipperOneReceiver);
                     break;
                 case NipperConstants.RECEIVER_MODE_CONFIGURATION:
-                    myReceiver.receiveReceiverConfiguration(data, this);
+                    NipperConstants.myReceiver.receiveReceiverConfiguration(data, this);
                     break;
                 case NipperConstants.RECEIVER_MODE_STOREDMESSAGES:
                     break;
@@ -214,10 +217,10 @@ public class MyService extends Service {
             // If we're in alarm but we haven't had a text notification with a header, ignore it.
             if (NipperConstants.expectingMoreAlertText) {
                 if (NipperConstants.isAlarm){
-                    myMsg = myReceiver.updateReceiverAlertMessage(data, true, myMsg);
+                    myMsg = NipperConstants.myReceiver.updateReceiverAlertMessage(data, true, myMsg);
                     if(dbHandler.msgExists(NipperConstants.messageCount)){
                         dbHandler.updateMessage(myMsg);
-                        System.out.println("#3I updated the message!!!!!! message is now: " + myMsg.ShortMsgtoString());
+                        //System.out.println("#3I updated the message!!!!!! message is now: " + myMsg.ShortMsgtoString());
                     }
                 }
             } else  {
@@ -227,7 +230,126 @@ public class MyService extends Service {
 
     } // END updateReceivedData()
 
+    /**
+     *
+     * Displays the receiver's status to the tablet screen.
+     * <pre>
+     * This function requires data[7] = 2 ("normal status") AND data[5] = 0xED ("Notification")
+     * ---------
+     * data[0..1] Message Length(excluding these two bytes) Least significant byte first.
+     *            Status Message length is typically 0x36 bytes.
+     * data[2..3]  Group   Application 01 01
+     * data[4] Function    NPR-EAS 20
+     * data[5] Return  Notification = ED  Notification ED is important data for immediate use. No request needed.
+     * data[6] Message Number  01..FF  Only odd numbers from receiver
+     * data[7] Receiver Mode:
+     *         2 = Normal Status
+     * data[8..12] Tuned frequency: format: nnnnn
+     * data[13..16] PI code: format hhhh (hex format), returns FFFF when scanning.
+     * data[17..20] Call sign: format: CCCC
+     * data[21..28] PS name. Format: cccccccc
+     * data[29..31] SNR Quality in dB. Format: nnn (0..100)
+     * data[32..34] Signal level. Format : nnn (0..100)
+     * data[35] Mono / Stereo: 0-Mono; 1-Stereo
+     * data[36..41] Date: format: ddmmyy
+     * data[42..45] Time: format: HHMM
+     * data[46] LED ON status: Format is bit-encoded.
+     *             Beacon = 0000 0001
+     *          No Signal = 0000 0010
+     *              Power = 0000 0100
+     *              Alert = 0000 1000
+     *              ALARM = 0001 0000
+     * Data[47] Alarm: Format is bit-encoded:
+     *            No Beacon = 0000 0000
+     *          Have Beacon = 0000 0001
+     *          Have WA Bit = 0000 0010
+     *           Have ALARM = 0000 0100
+     *             Snoozing = 0000 1000
+     * data[48] Volume Status
+     * data[49..53]  Receiver's stored FIPS Code: nnnnnn as portion (0-9),state (00-99), County (000-999)
+     * data[54..55] Firmware version nn (major - minor)
+     * </pre>
+     * @param data A byte array containing status data from the NPR Labs FM RDS Receiver.
+     */
+    private void updateTabletTextView(byte[] data){
+        // Rdata[13..16] PI code: format hhhh (hex format)
+        // Receiver returns a PI code of FFFF when scanning.
+        // In this notification mode, the receiver is slow scanning
+        // its stored stations, looking for our beacon.
+
+        // Rdata[8..12] Tuned frequency: format: nnnnn
+        // Note that data[12] is always zero in the USA.
+
+        // Frequency is in data[8..12] inclusive
+        this.displayFreqString = NipperConstants.myReceiver.displayFrequency(Arrays.copyOfRange(data, 8, 13));
+        // Display the signal level
+        // data 32, 33, 34 is the Signal Level in this notification mode
+//        mSignalLevel.setText(myReceiver.displaySignalLevel(Arrays.copyOfRange(data, 32, 35)));
+
+
+        NipperConstants.versionNipperOneReceiver = Byte.toString(data[54]) + "." + Byte.toString(data[55]);
+
+        if ( data[13]== 'F' ) {
+
+
+            // This is also a good place to extract our NIPPER ONE firmware version from the byte array
+            // and store it for the About box use.
+            //Log.d("versionNipperOneReceiver: update Tablet Text View ",Byte.toString(data[54]) + "." + Byte.toString(data[55]) );
+            NipperConstants.versionNipperOneReceiver = Byte.toString(data[54]) + "." + Byte.toString(data[55]);
+
+
+        } else {
+            NipperConstants.isAlarm = (data[47] & NipperConstants.FLAG_HAVE_ALARM) == NipperConstants.FLAG_HAVE_ALARM  ? true : false;
+            //if ((data[47] & FLAG_HAVE_ALARM) == FLAG_HAVE_ALARM) {
+            //    isAlarm = true;
+            //} else isAlarm = false;
+
+
+            // Rdata[17..20] Call sign: format: CCCC
+            // The receiver back-calculates the call letters from the PI Code.
+            // Note that for ClearChannel-owned stations, the call letters will be
+            // nonsensical because they transmit TMC and adhere to PI Euro standard.
+            //mStationCall.setText(new String(Arrays.copyOfRange(data, 17, 21)));
+            // New: Show the Call Letters in the BeaconStatus text.
+//            String tmp = nipperRes.getString(R.string.defaultTextStationFound) + new String(Arrays.copyOfRange(data, 17, 21));
+//            mBeaconStatus.setText(tmp);
+
+            // Rdata[21...28] PS code, format: CCCCCCCC
+            // The Program Service field, an 8 character friendly name of the station.
+            // It is more reliable than back calculating the Call letters from the PI code.
+//            mStationCall.setText(new String(Arrays.copyOfRange(data, 21, 29)));
+
+            // WA bit activated. This blinks the display.
+            // For steady Alert indication use (data[47] & FLAG_HAVE_WABIT) == FLAG_HAVE_WABIT
+//            if ((data[NipperConstants.receiverLEDStatus] & NipperConstants.FLAG_LED_ALERT) == NipperConstants.FLAG_LED_ALERT){
+//                // If changing text color, be sure to set Alpha level too:  0xAARRGGBB
+//                mAlert.setVisibility(TextView.VISIBLE);
+//            } else {
+//                mAlert.setVisibility(TextView.INVISIBLE);
+//            }
+
+            // ALARM activated. This is a blinking ALARM indication.
+            // For steady ALARM indication use (data[47] & FLAG_HAVE_ALARM) == FLAG_HAVE_ALARM
+//            if ((data[NipperConstants.receiverLEDStatus] & NipperConstants.FLAG_LED_ALARM) == NipperConstants.FLAG_LED_ALARM){
+//                // If changing text color, be sure to set Alpha level too:  0xAARRGGBB
+//                mAlarm.setVisibility(TextView.VISIBLE);
+//            } else {
+//                mAlarm.setVisibility(TextView.INVISIBLE);
+//            }
+
+            // Change the background message box color on ALARM,
+            // Return to normal otherwise.
+
+        }
+    }
+
+    private void updateReceiverBandscan(byte[] data){
+        this.displayFreqString = NipperConstants.myReceiver.displayFrequency(Arrays.copyOfRange(data, 8, 13));
+    }
+
+
     /// -----------| USB Connection Probing |---------------------------
+
 
     /**
      * This function uses the usbserial library to probe for the
@@ -308,16 +430,62 @@ public class MyService extends Service {
     /**
      *
      * @param valueToSend
-     * @param data
      */
-    private void sendMessageToUI(int valueToSend, byte[] data){
+    private void sendMessageToUI(int valueToSend){
 
         Log.i(TAG, "Sending a message to the UI");
+        try{
+            Bundle msgBundle = new Bundle();
 
-        Bundle msgBundle = new Bundle();
-        msgBundle.putByteArray("byteArray", data);
-        Message msg = new Message();
-        msg.setData(msgBundle);
-        resultHandler.sendMessage(msg);
+            Message msg = new Message();
+
+            switch (valueToSend){
+
+                case UPDATE_TABLET_TEXT_VIEW:
+                    msg.what = valueToSend;
+                    break;
+                case UPDATE_BANDSCAN:
+                    msg.what = valueToSend;
+                    msgBundle.putString("freqString", displayFreqString);
+                    msg.setData(msgBundle);
+                    break;
+                default:
+                    break;
+            }
+
+
+
+            mClient.send(msg);
+        }
+        catch(RemoteException e){
+
+        }
+
     }
+
+    private class IncomingHandler extends PauseHandler{
+
+        @Override
+        public void processMessage(Message msg){
+
+        //    final activity = this.activity;
+        //    if(activity != null)
+            switch(msg.what){
+
+                case SET_CLIENT:
+                    Log.d(TAG, "Set the service client!");
+                    mClient = msg.replyTo;
+                    break;
+                case REMOVE_CLIENT:
+                    Log.d(TAG, "removed the service client");
+                    mClient = null;
+                    break;
+                case UPDATE_BANDSCAN:
+                    break;
+                default:
+                    break;
+            }
+
+        }
+    }//end of IncomingHandler
 }

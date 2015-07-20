@@ -1,15 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="org.prss.nprlabs.nipperonealerter"
     android:versionCode="1"
-    android:versionName="0.9.21gamma">
+    android:versionName="0.9.21delta">
 
 
     <uses-feature android:name="android.hardware.usb.host" />
 
-    <!-- <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> -->
-   
    <application
         tools:replace="android:label"
         android:icon="@drawable/nprlabslogo"
@@ -18,8 +15,7 @@
         android:theme="@android:style/Theme.Holo"
         android:logo="@drawable/nprlabslogo">
 
-        <service android:name="org.nprlabs.nipperone.main.MyService"
-                android:process="myPrc"/>
+        <service android:name="org.nprlabs.nipperone.main.MyService"></service>
 
         <!-- Our main activity for the alerting and interface to the NipperOne receiver -->  
         <activity

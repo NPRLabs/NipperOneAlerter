@@ -209,7 +209,7 @@ public class NipperActivity extends Activity {
      *  Define the broadcast receiver that handles incoming broadcast messages.
      *  Our clock tick and USB connections are monitored here.
      */
-    private final BroadcastReceiver tickReceiver = new MyReceiver();
+    private final BroadcastReceiver tickReceiver = new MyBroadcastReceiver();
 
 //    /**
 //     * Listens for a click on the EAS Short Codes TextViews, and displays a Toast object with a
@@ -248,7 +248,6 @@ public class NipperActivity extends Activity {
             " describes the category of this event.",
             " is how long this alert is in effect.");
 
-    private Receiver myReceiver = new Receiver();
 
 
     // Our local resources, such as stored colors
@@ -263,40 +262,41 @@ public class NipperActivity extends Activity {
      //     * Receiver Alarm Status Flag (set and cleared in updateReceiverStatus())
      //     * Set = ALARM, Cleared = Normal
      //     */
-//    private static boolean isAlarm = false;
-
-    /**
-     * The message string to display when the receiver is disconnected or is rebooting.
-     */
-    private final String messageReceiverDisconnected = "\n------------------------------------------------------\nWHOA! The receiver has been unplugged or is rebooting.\n------------------------------------------------------\n";
 
     private boolean expectingMoreAlertText = false;
     /**
      * This is the context variable set in onCreate()
      * It is used by the Toast widget.
      */
-    private Context parentContext;
+    private static Context parentContext;
 
     private static AlertImpl myMsg = new AlertImpl();
 
-    private AlertImpl[] messageArray = new AlertImpl[10];
-
-    private Button button;
-    private Button button2;
-
-
-    DatabaseHandler dbHandler;
-    int messageCount = 0;
+    private static DatabaseHandler dbHandler;
+    private static int messageCount = 0;
 
     boolean messageComplete = false;
 
     AlertImpl newMsg = new AlertImpl();
 
+    //variables having to do with the Service and it's connection.
     private Messenger mService = null;
+    private Messenger mMessenger = new Messenger(new MessageHandler());
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.d(TAG, "mConnection on Service Connected");
             mService = new Messenger(service);
+
+            try{
+                Message msg = Message.obtain(null, MyService.SET_CLIENT);
+                msg.replyTo = mMessenger;
+                mService.send(msg);
+            }catch(RemoteException e){
+
+            }
+
+
             Log.d("Service Connection", "");
         }
 
@@ -305,8 +305,10 @@ public class NipperActivity extends Activity {
             mService = null;
         }
     };
-    private Messenger mMessenger = new Messenger(new MessageHandler());
+
     private boolean mIsBound = false;
+    private MessageHandler msgHandler = new MessageHandler();
+    private static Intent intent;
 
     /*
      * (non-Javadoc)
@@ -349,7 +351,7 @@ public class NipperActivity extends Activity {
         nipperRes = getResources();
 
         // Initialize the API class.
-        myReceiver.initializeReceiver();
+        NipperConstants.myReceiver.initializeReceiver();
 
         // Share the activity and context for Toast and the preferences activity
         parentContext = getApplicationContext();
@@ -411,21 +413,23 @@ public class NipperActivity extends Activity {
         // Load any app preferences (not receiver config, but only app stuff).
         loadPrefs();
 
-        checkIfServiceIsRunning();
+        intent = new Intent(this.getApplicationContext(), MyService.class);
+        startService(intent);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        mIsBound = true;
+
+
+
+
+
     } // END onCreate()
 
-    private void checkIfServiceIsRunning(){
-        if(MyService.isRunning()){
-            doBindService();
-        }
-    }
-    public void doBindService(){
 
-        //creating a service connection and overriding the 2 necessary methods.
-
-        bindService(new Intent(this.getApplicationContext(), MyService.class), mConnection, Context.BIND_AUTO_CREATE);
-        mIsBound = true;
-    }
+//    public void doBindService(){
+//
+//        bindService(start, mConnection, Context.BIND_AUTO_CREATE);
+//        mIsBound = true;
+//    }
 
     public void doUnbindService(){
         if(mIsBound){
@@ -433,7 +437,7 @@ public class NipperActivity extends Activity {
             // to unregister
             if(mService != null){
 
-                Message msg = Message.obtain(null, MyService.MSG_UNREGISTER_CLIENT);
+                Message msg = Message.obtain(null, MyService.REMOVE_CLIENT);
                 msg.replyTo = mMessenger;
                 try {
                     mService.send(msg);
@@ -454,7 +458,7 @@ public class NipperActivity extends Activity {
         if(mIsBound){
             if(mService != null){
                 try{
-                    Message msg = Message.obtain(null, MyService.DONE, valueToSend, 0);
+                    Message msg = Message.obtain(null, MyService.ALERT_DONE, valueToSend, 0);
                     msg.replyTo = mMessenger;
                     mService.send(msg);
                 }catch (RemoteException e){
@@ -527,13 +531,15 @@ public class NipperActivity extends Activity {
     @Override
     public void onPause(){
 
-
-
+        super.onPause();
+        msgHandler.pause();
     }
 
     @Override
     public void onResume(){
-
+        super.onResume();
+        //msgHandler.setActivity(getActivity());
+        msgHandler.resume();
     }
 
     @Override
@@ -549,8 +555,8 @@ public class NipperActivity extends Activity {
     */
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        myReceiver.requestReceiverConfiguration(NipperConstants.sDriver);
-        myReceiver.requestReceiverVersion(NipperConstants.sDriver);
+        NipperConstants.myReceiver.requestReceiverConfiguration(NipperConstants.sDriver);
+        NipperConstants.myReceiver.requestReceiverVersion(NipperConstants.sDriver);
         // Handles presses on the action bar items
         int id = item.getItemId();
         if (id == R.id.action_settings) {
@@ -575,7 +581,7 @@ public class NipperActivity extends Activity {
             builder.setPositiveButton("Reset Receiver to Default Settings", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     // User clicked OK button
-                    myReceiver.writeReceiverConfigurationDefault(NipperConstants.sDriver);
+                    NipperConstants.myReceiver.writeReceiverConfigurationDefault(NipperConstants.sDriver);
                 }
             });
             builder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
@@ -639,7 +645,7 @@ public class NipperActivity extends Activity {
      * Displays the app version, Receiver firmware version, copyright information, and receiver FIPS code in a message box.
      */
     private void openAbout() {
-        myReceiver.requestReceiverVersion(NipperConstants.sDriver);
+        NipperConstants.myReceiver.requestReceiverVersion(NipperConstants.sDriver);
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String keyfips = prefs.getString("key_FIPS","");
@@ -825,7 +831,7 @@ public class NipperActivity extends Activity {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String reqFIPS = prefs.getString("key_reqFIPS", null);
         if (reqFIPS != null) {
-            myReceiver.writeReceiverConfigurationFIPS(NipperConstants.sDriver, reqFIPS);
+            NipperConstants.myReceiver.writeReceiverConfigurationFIPS(NipperConstants.sDriver, reqFIPS);
 
             // If we have descriptive text about the location, show it.
             // Else just show the user the new FIPS code.
@@ -836,132 +842,23 @@ public class NipperActivity extends Activity {
         }
     }
 
-
-
     /**
-     * Displays the receiver's status to the tablet screen.
-     * <pre>
-     * This function requires data[7] = 2 ("normal status") AND data[5] = 0xED ("Notification")
-     * --------- 
-     * data[0..1] Message Length(excluding these two bytes) Least significant byte first. 
-     *            Status Message length is typically 0x36 bytes.
-     * data[2..3]  Group   Application 01 01
-     * data[4] Function    NPR-EAS 20
-     * data[5] Return  Notification = ED  Notification ED is important data for immediate use. No request needed.
-     * data[6] Message Number  01..FF  Only odd numbers from receiver
-     * data[7] Receiver Mode: 
-     *         2 = Normal Status
-     * data[8..12] Tuned frequency: format: nnnnn
-     * data[13..16] PI code: format hhhh (hex format), returns FFFF when scanning.
-     * data[17..20] Call sign: format: CCCC
-     * data[21..28] PS name. Format: cccccccc
-     * data[29..31] SNR Quality in dB. Format: nnn (0..100)
-     * data[32..34] Signal level. Format : nnn (0..100)
-     * data[35] Mono / Stereo: 0-Mono; 1-Stereo
-     * data[36..41] Date: format: ddmmyy
-     * data[42..45] Time: format: HHMM
-     * data[46] LED ON status: Format is bit-encoded.
-     *             Beacon = 0000 0001
-     *          No Signal = 0000 0010
-     *              Power = 0000 0100
-     *              Alert = 0000 1000
-     *              ALARM = 0001 0000
-     * Data[47] Alarm: Format is bit-encoded:
-     *            No Beacon = 0000 0000
-     *          Have Beacon = 0000 0001
-     *          Have WA Bit = 0000 0010
-     *           Have ALARM = 0000 0100
-     *             Snoozing = 0000 1000
-     * data[48] Volume Status 
-     * data[49..53]  Receiver's stored FIPS Code: nnnnnn as portion (0-9),state (00-99), County (000-999)
-     * data[54..55] Firmware version nn (major - minor) 
-     * </pre>
-     * @param data A byte array containing status data from the NPR Labs FM RDS Receiver.
+     * The UI side of this method. The other part deals with the data
+     * in the service method of the same name.
      */
+    //TODO clean up this method.
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @SuppressWarnings("deprecation")
-    private void updateTabletTextViews(byte[] data) {
-        // Rdata[13..16] PI code: format hhhh (hex format)
-        // Receiver returns a PI code of FFFF when scanning.
-        // In this notification mode, the receiver is slow scanning
-        // its stored stations, looking for our beacon.
-
-        // Rdata[8..12] Tuned frequency: format: nnnnn
-        // Note that data[12] is always zero in the USA.
-
-        // Frequency is in data[8..12] inclusive
-        mStationFreq.setText(myReceiver.displayFrequency(Arrays.copyOfRange(data, 8, 13)));
-        // Display the signal level
-        // data 32, 33, 34 is the Signal Level in this notification mode
-//        mSignalLevel.setText(myReceiver.displaySignalLevel(Arrays.copyOfRange(data, 32, 35)));
+    protected static void updateTabletTextViews() {
 
         // If the receiver is in slow scan, the PI code is ASCII "FFFF", so
         // we indicate we're looking for our station.
-        if ( data[13]== 'F' ) {
-            if (Build.VERSION.SDK_INT >= 16) {
-                mStationFreq.setBackground(drawStationFreqSlow);
-            }
-            else {
-                mStationFreq.setBackground(drawStationFreqSlow);
-            }
-
-//            mBeaconStatus.setText(nipperRes.getString(R.string.defaultTextSlowScan));
-            // This is also a good place to extract our NIPPER ONE firmware version from the byte array
-            // and store it for the About box use.
-            //Log.d("versionNipperOneReceiver: update Tablet Text View ",Byte.toString(data[54]) + "." + Byte.toString(data[55]) );
-            NipperConstants.versionNipperOneReceiver = Byte.toString(data[54]) + "." + Byte.toString(data[55]);
-
-
-        } else {
-            NipperConstants.isAlarm = (data[47] & NipperConstants.FLAG_HAVE_ALARM) == NipperConstants.FLAG_HAVE_ALARM  ? true : false;
-            //if ((data[47] & FLAG_HAVE_ALARM) == FLAG_HAVE_ALARM) {
-            //    isAlarm = true;
-            //} else isAlarm = false;
-
-            // We've found our station!
-            if (Build.VERSION.SDK_INT >= 16) {
-                mStationFreq.setBackground(drawStationFreqFoundStation);
-            }
-            else {
-                mStationFreq.setBackground(drawStationFreqFoundStation);
-            }
             //mStationFreq.setBackgroundColor(nipperRes.getColor(R.color.defaultBackgroundRelStationLayout));
 
-            // Rdata[17..20] Call sign: format: CCCC
-            // The receiver back-calculates the call letters from the PI Code.
-            // Note that for ClearChannel-owned stations, the call letters will be
-            // nonsensical because they transmit TMC and adhere to PI Euro standard.
-            //mStationCall.setText(new String(Arrays.copyOfRange(data, 17, 21)));
-            // New: Show the Call Letters in the BeaconStatus text.
-            String tmp = nipperRes.getString(R.string.defaultTextStationFound) + new String(Arrays.copyOfRange(data, 17, 21));
-//            mBeaconStatus.setText(tmp);
-
-            // Rdata[21...28] PS code, format: CCCCCCCC
-            // The Program Service field, an 8 character friendly name of the station.
-            // It is more reliable than back calculating the Call letters from the PI code.
-//            mStationCall.setText(new String(Arrays.copyOfRange(data, 21, 29)));
-
-            // WA bit activated. This blinks the display.
-            // For steady Alert indication use (data[47] & FLAG_HAVE_WABIT) == FLAG_HAVE_WABIT
-//            if ((data[NipperConstants.receiverLEDStatus] & NipperConstants.FLAG_LED_ALERT) == NipperConstants.FLAG_LED_ALERT){
-//                // If changing text color, be sure to set Alpha level too:  0xAARRGGBB
-//                mAlert.setVisibility(TextView.VISIBLE);
-//            } else {
-//                mAlert.setVisibility(TextView.INVISIBLE);
-//            }
-
-            // ALARM activated. This is a blinking ALARM indication.
-            // For steady ALARM indication use (data[47] & FLAG_HAVE_ALARM) == FLAG_HAVE_ALARM
-//            if ((data[NipperConstants.receiverLEDStatus] & NipperConstants.FLAG_LED_ALARM) == NipperConstants.FLAG_LED_ALARM){
-//                // If changing text color, be sure to set Alpha level too:  0xAARRGGBB
-//                mAlarm.setVisibility(TextView.VISIBLE);
-//            } else {
-//                mAlarm.setVisibility(TextView.INVISIBLE);
-//            }
 
             // Change the background message box color on ALARM,
             // Return to normal otherwise.
-            // TODO If a new message comes in while HaveSetAlarmScreen == true, then display the time stamp again.
+
             if (NipperConstants.isAlarm){
 
                 if (!HaveSetAlarmScreen ) {
@@ -985,11 +882,10 @@ public class NipperActivity extends Activity {
                     //mEASEvent.setTextColor(nipperRes.getColor(R.color.defaultTextColorMessageAlarm));
                     //messageLayout.setBackgroundColor(nipperRes.getColor(R.color.defaultBackgroundMessageAlarm));
 
-
-                    android.text.format.Time now = new android.text.format.Time();
-                    now.setToNow();
-                    SimpleDateFormat formatter;
-                    formatter = new SimpleDateFormat("MMMMM dd,yyyy hh:mm aaa");
+//                    android.text.format.Time now = new android.text.format.Time();
+//                    now.setToNow();
+//                    SimpleDateFormat formatter;
+//                    formatter = new SimpleDateFormat("MMMMM dd,yyyy hh:mm aaa");
                     //mMessage.append("\n\n---| ALARM Message received " + formatter.format(new Date()) + " |---\n");
                     Toast.makeText(parentContext, "An Alert Transmission is starting.", Toast.LENGTH_SHORT).show();
 
@@ -1005,7 +901,6 @@ public class NipperActivity extends Activity {
                     Toast.makeText(parentContext, "The Alert Transmission has ended.", Toast.LENGTH_SHORT).show();
                 }
             }
-        }
 
     } // END updateReceiverStatus()
 
@@ -1023,9 +918,9 @@ public class NipperActivity extends Activity {
      */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @SuppressWarnings("deprecation")
-    private void updateReceiverBandScan(byte[] data){
+    protected static void updateReceiverBandScan(String data){
         // Frequency is in data[8]...data[12] inclusive
-        mStationFreq.setText(myReceiver.displayFrequency(Arrays.copyOfRange(data, 8, 13)));
+        mStationFreq.setText(data);
         // Signal Level is in data[13]...data[15] inclusive
 //        mSignalLevel.setText(myReceiver.displaySignalLevel(Arrays.copyOfRange(data, 13, 16)));
         //      mStationFreq.setBackgroundColor(nipperRes.getColor(R.color.defaultBackgroundQuickScan));
@@ -1051,12 +946,10 @@ public class NipperActivity extends Activity {
      */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @SuppressWarnings("deprecation")
-    private void clearAlarmScreen() {
+    private static void clearAlarmScreen() {
 
         resetAlertStructure();
-
         HaveSetAlarmScreen = false;
-
     }
 
     /**
@@ -1064,8 +957,8 @@ public class NipperActivity extends Activity {
      * so that we can minimize the occurrences of previous, old message data appearing<br>
      * at the beginning of a new alert message.
      */
-    private void resetAlertStructure() {
-        myReceiver.resetAlertStructure();
+    private static void resetAlertStructure() {
+        NipperConstants.myReceiver.resetAlertStructure();
     }
 
 
@@ -1097,12 +990,6 @@ public class NipperActivity extends Activity {
 
         protected Activity activity;
 
-        private static final int DONE = 0;
-        private static final int UPDATE_TABLET_TEXT_VIEW = 1;
-        private static final int UPDATE_BANDSCAN = 2;
-        private static final int NEW_ALERT = 3;
-        private static final int ALERT_DONE = 4;
-
         final void setActivity(Activity activity){
             this.activity = activity;
         }
@@ -1116,16 +1003,28 @@ public class NipperActivity extends Activity {
         @Override
         final protected void processMessage(android.os.Message msg){
 
-            final Activity activity = this.activity;
-            if (activity != null){
+            //final Activity activity = this.activity;
+            byte[] data = msg.getData().getByteArray("byteArray");
+            //if (activity != null){
                 switch (msg.what){
 
-                    case UPDATE_TABLET_TEXT_VIEW:
+                    case MyService.UPDATE_TABLET_TEXT_VIEW:
+                        updateReceiverBandScan(msg.getData().getString("freqString"));
+                        updateTabletTextViews();
+                        break;
+                    case MyService.UPDATE_BANDSCAN:
+                        updateReceiverBandScan(msg.getData().getString("freqString"));
+                            break;
+                    case MyService.NEW_ALERT:
+                        //TODO make a notification show up? or do it from the service...
+                        break;
+                    case MyService.ALERT_DONE:
+                        //TODO not sure that this one is necessary
                         break;
                     default:
                         break;
                 }
-            }
+            //}
         }
 
     }
