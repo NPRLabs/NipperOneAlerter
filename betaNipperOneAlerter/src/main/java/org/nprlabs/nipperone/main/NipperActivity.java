@@ -280,9 +280,10 @@ public class NipperActivity extends Activity {
     AlertImpl newMsg = new AlertImpl();
 
     //variables having to do with the Service and it's connection.
+    //mService is used to send
     private Messenger mService = null;
     private Messenger mMessenger = new Messenger(new MessageHandler());
-    private ServiceConnection mConnection = new ServiceConnection() {
+    public ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG, "mConnection on Service Connected");
@@ -295,9 +296,6 @@ public class NipperActivity extends Activity {
             }catch(RemoteException e){
 
             }
-
-
-            Log.d("Service Connection", "");
         }
 
         @Override
@@ -308,7 +306,6 @@ public class NipperActivity extends Activity {
 
     private boolean mIsBound = false;
     private MessageHandler msgHandler = new MessageHandler();
-    private static Intent intent;
 
     /*
      * (non-Javadoc)
@@ -413,23 +410,17 @@ public class NipperActivity extends Activity {
         // Load any app preferences (not receiver config, but only app stuff).
         loadPrefs();
 
-        intent = new Intent(this.getApplicationContext(), MyService.class);
-        startService(intent);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+
+        //bind to the service that was started in the broadcast receiver
+        Intent myIntent = new Intent(this, MyService.class);
+        startService(myIntent);
+        bindService(myIntent, mConnection, Context.BIND_AUTO_CREATE);
+        //bind to the service
         mIsBound = true;
-
-
-
-
+        sendMessageToService(MyService.SET_CLIENT);
 
     } // END onCreate()
 
-
-//    public void doBindService(){
-//
-//        bindService(start, mConnection, Context.BIND_AUTO_CREATE);
-//        mIsBound = true;
-//    }
 
     public void doUnbindService(){
         if(mIsBound){
@@ -458,9 +449,10 @@ public class NipperActivity extends Activity {
         if(mIsBound){
             if(mService != null){
                 try{
-                    Message msg = Message.obtain(null, MyService.ALERT_DONE, valueToSend, 0);
+                    Message msg = Message.obtain(null, valueToSend);
                     msg.replyTo = mMessenger;
                     mService.send(msg);
+                    Log.d("SEND_MESSAGE_TO_SERVICE", "msg was sent to the service!");
                 }catch (RemoteException e){
                 }
             }
@@ -539,7 +531,7 @@ public class NipperActivity extends Activity {
     public void onResume(){
         super.onResume();
         //msgHandler.setActivity(getActivity());
-        msgHandler.resume();
+        msgHandler.resume(NipperActivity.this);
     }
 
     @Override
@@ -994,18 +986,13 @@ public class NipperActivity extends Activity {
             this.activity = activity;
         }
 
-        @Override
-        final protected boolean storeMessage(android.os.Message message){
-            //All messages are stored by default
-            return true;
-        }
 
-        @Override
-        final protected void processMessage(android.os.Message msg){
+
+        final protected void processMessage(Activity activity, android.os.Message msg){
 
             //final Activity activity = this.activity;
             byte[] data = msg.getData().getByteArray("byteArray");
-            //if (activity != null){
+            if (activity != null){
                 switch (msg.what){
 
                     case MyService.UPDATE_TABLET_TEXT_VIEW:
@@ -1024,7 +1011,7 @@ public class NipperActivity extends Activity {
                     default:
                         break;
                 }
-            //}
+            }
         }
 
     }

@@ -1,5 +1,6 @@
 package org.nprlabs.nipperone.main;
 
+import android.app.Activity;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
@@ -43,7 +44,7 @@ public class MyService extends Service {
     private AlertImpl myMsg = new AlertImpl();
     private DatabaseHandler dbHandler;
 
-    private SerialInputOutputManager.Listener mListener = new SerialInputOutputManager.Listener() {
+    final SerialInputOutputManager.Listener mListener = new SerialInputOutputManager.Listener() {
         @Override
         public void onRunError(Exception e) {
             Log.d(TAG, "SerialInputOutputManagerListener Runner stopped.");
@@ -53,6 +54,7 @@ public class MyService extends Service {
             new Runnable() {
                 @Override
                 public void run() {
+                    Log.d(TAG, "serial I/O manager started");
                     processReceivedData(data);  //NipperOneAlerter.this.updateReceivedData(data);
                 }
             };
@@ -73,7 +75,6 @@ public class MyService extends Service {
         super.onCreate();
         Log.d(TAG, "S:onCreate: Service Started.");
 
-        this.isRunning = true;
         dbHandler = DatabaseHandler.getInstance(this);
     }
 
@@ -147,6 +148,7 @@ public class MyService extends Service {
      */
     public void processReceivedData(byte[] data) {
 
+        Log.d(TAG, "processing receiver data.");
 
         // 0xED = -19d = Notification from the receiver
         // 0xEE = -18d = Return of requested data
@@ -160,7 +162,7 @@ public class MyService extends Service {
         if (data[NipperConstants.receiverByteReturnType] == NipperConstants.receiverReturnTypeNotification) {
             switch (data[NipperConstants.receiverByteReturnMode]){
                 case NipperConstants.RECEIVER_MODE_STATUS:
-                    //updateTabletTextViews(data);
+                    updateTabletTextViews(data);
                     System.out.println("The tablet views were updated");
                     sendMessageToUI(UPDATE_TABLET_TEXT_VIEW);
 
@@ -271,7 +273,7 @@ public class MyService extends Service {
      * </pre>
      * @param data A byte array containing status data from the NPR Labs FM RDS Receiver.
      */
-    private void updateTabletTextView(byte[] data){
+    private void updateTabletTextViews(byte[] data){
         // Rdata[13..16] PI code: format hhhh (hex format)
         // Receiver returns a PI code of FFFF when scanning.
         // In this notification mode, the receiver is slow scanning
@@ -439,10 +441,12 @@ public class MyService extends Service {
 
             Message msg = new Message();
 
-            switch (valueToSend){
+            switch (valueToSend) {
 
                 case UPDATE_TABLET_TEXT_VIEW:
                     msg.what = valueToSend;
+                    msgBundle.putString("freqString", displayFreqString);
+                    msg.setData(msgBundle);
                     break;
                 case UPDATE_BANDSCAN:
                     msg.what = valueToSend;
@@ -452,9 +456,6 @@ public class MyService extends Service {
                 default:
                     break;
             }
-
-
-
             mClient.send(msg);
         }
         catch(RemoteException e){
@@ -466,10 +467,9 @@ public class MyService extends Service {
     private class IncomingHandler extends PauseHandler{
 
         @Override
-        public void processMessage(Message msg){
+        public void processMessage(Activity activity,Message msg){
 
-        //    final activity = this.activity;
-        //    if(activity != null)
+            if(activity != null)
             switch(msg.what){
 
                 case SET_CLIENT:
@@ -483,6 +483,7 @@ public class MyService extends Service {
                 case UPDATE_BANDSCAN:
                     break;
                 default:
+                    super.handleMessage(msg);
                     break;
             }
 

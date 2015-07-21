@@ -4,6 +4,7 @@ package org.nprlabs.nipperone.main;
  * Created by kbrudos on 7/16/2015.
  */
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -20,7 +21,7 @@ import java.util.Vector;
  * Please see the following for the original author (quickdraw mcgraw) of this class on Stack overflow
  * http://stackoverflow.com/a/8122789/5111318
  */
-public class PauseHandler extends Handler {
+public abstract class PauseHandler extends Handler {
 
     //message queue buffer
     final Vector<Message> messageQueueBuffer = new Vector<Message>();
@@ -28,9 +29,12 @@ public class PauseHandler extends Handler {
     //Flag indicating the pause state
     private boolean paused;
 
+    private Activity activity;
+
     //resume the handler
-    final public void resume(){
+    public final synchronized void resume(Activity activity){
         paused = false;
+        this.activity = activity;
 
         while(messageQueueBuffer.size() > 0 ){
             final Message msg = messageQueueBuffer.elementAt(0);
@@ -42,18 +46,11 @@ public class PauseHandler extends Handler {
     /**
      * pause the handler
      */
-    public final void pause(){
+    public final synchronized void pause(){
         paused = true;
+        activity = null;
     }
 
-
-    /**
-     * Notification that the message is about to be stored as the activity is paused. If
-     * not handled the message will be saved and replayed when the activity resumes.
-     * @param message
-     * @return
-     */
-    protected boolean storeMessage (Message message){return false;}
 
     /**
      * Notification message to be processed. This will either be
@@ -61,19 +58,17 @@ public class PauseHandler extends Handler {
      * message when the activity was paused.
      * @param message
      */
-    protected void processMessage(Message message){handleMessage(message);}
+    abstract protected void processMessage(Activity activity, Message message);
 
     @Override
-    public final void handleMessage(Message msg){
+    public final synchronized void handleMessage(Message msg){
 
-        if(paused){
-            if(storeMessage(msg)){
-                Message msgCopy = new Message();
-                msgCopy.copyFrom(msg);
-                messageQueueBuffer.add(msgCopy);
-            }
+        if(activity != null & paused){
+            final Message msgCopy = new Message();
+            msgCopy.copyFrom(msg);
+            messageQueueBuffer.add(msgCopy);
         }else{
-            processMessage(msg);
+            processMessage(activity, msg);
         }
     }
 

@@ -11,7 +11,6 @@ import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
 
 import org.nprlabs.nipperone.framework.NipperConstants;
-
 import java.util.List;
 
 /**
@@ -31,6 +30,7 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
         }  else if ( UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action) ) {
             //mMessage.append("\nThe Receiver is plugged in!\n");
             //TODO add the start background service here!!
+
 
         } else if ( UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action) ) {
             // Either the receiver has been rebooted or physically disconnected from the tablet.
