@@ -171,15 +171,12 @@ public class NipperActivity extends Activity {
     private final static String m24 = "k:mm";
     private String mFormat;
 
-//    private SerialInputOutputManager mSerialIoManager;
-//    private PendingIntent mPermissionIntent = null;
 
     private IntentFilter tickReceiverIntentFilter = null;
 
     // These indicate which fragment we want to display
     private final int FragmentMode_SETTINGS = 1;
     private final int FragmentMode_HELP = 2;
-
 
     static String versionNipperOneAlerter = "Unknown";
 
@@ -204,12 +201,6 @@ public class NipperActivity extends Activity {
     static Drawable drawStationFreqFoundStation = null;
 
 
-
-    /**
-     *  Define the broadcast receiver that handles incoming broadcast messages.
-     *  Our clock tick and USB connections are monitored here.
-     */
-    private final BroadcastReceiver tickReceiver = new MyBroadcastReceiver();
 
 //    /**
 //     * Listens for a click on the EAS Short Codes TextViews, and displays a Toast object with a
@@ -263,7 +254,6 @@ public class NipperActivity extends Activity {
      //     * Set = ALARM, Cleared = Normal
      //     */
 
-    private boolean expectingMoreAlertText = false;
     /**
      * This is the context variable set in onCreate()
      * It is used by the Toast widget.
@@ -306,6 +296,9 @@ public class NipperActivity extends Activity {
 
     private boolean mIsBound = false;
     private MessageHandler msgHandler = new MessageHandler();
+
+
+
 
     /*
      * (non-Javadoc)
@@ -409,6 +402,7 @@ public class NipperActivity extends Activity {
 
         // Load any app preferences (not receiver config, but only app stuff).
         loadPrefs();
+
 
 
         //bind to the service that was started in the broadcast receiver
@@ -547,8 +541,8 @@ public class NipperActivity extends Activity {
     */
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        NipperConstants.myReceiver.requestReceiverConfiguration(NipperConstants.sDriver);
-        NipperConstants.myReceiver.requestReceiverVersion(NipperConstants.sDriver);
+//        NipperConstants.myReceiver.requestReceiverConfiguration(NipperConstants.sDriver);
+//        NipperConstants.myReceiver.requestReceiverVersion(NipperConstants.sDriver);
         // Handles presses on the action bar items
         int id = item.getItemId();
         if (id == R.id.action_settings) {
@@ -573,7 +567,7 @@ public class NipperActivity extends Activity {
             builder.setPositiveButton("Reset Receiver to Default Settings", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     // User clicked OK button
-                    NipperConstants.myReceiver.writeReceiverConfigurationDefault(NipperConstants.sDriver);
+//                    NipperConstants.myReceiver.writeReceiverConfigurationDefault(NipperConstants.sDriver);
                 }
             });
             builder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
@@ -637,7 +631,7 @@ public class NipperActivity extends Activity {
      * Displays the app version, Receiver firmware version, copyright information, and receiver FIPS code in a message box.
      */
     private void openAbout() {
-        NipperConstants.myReceiver.requestReceiverVersion(NipperConstants.sDriver);
+//        NipperConstants.myReceiver.requestReceiverVersion(NipperConstants.sDriver);
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String keyfips = prefs.getString("key_FIPS","");
@@ -823,7 +817,7 @@ public class NipperActivity extends Activity {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String reqFIPS = prefs.getString("key_reqFIPS", null);
         if (reqFIPS != null) {
-            NipperConstants.myReceiver.writeReceiverConfigurationFIPS(NipperConstants.sDriver, reqFIPS);
+//            NipperConstants.myReceiver.writeReceiverConfigurationFIPS(NipperConstants.sDriver, reqFIPS);
 
             // If we have descriptive text about the location, show it.
             // Else just show the user the new FIPS code.
@@ -982,24 +976,21 @@ public class NipperActivity extends Activity {
 
         protected Activity activity;
 
-        final void setActivity(Activity activity){
-            this.activity = activity;
-        }
 
-
-
-        final protected void processMessage(Activity activity, android.os.Message msg){
+        final protected void processMessage(android.os.Message msg){
 
             //final Activity activity = this.activity;
             byte[] data = msg.getData().getByteArray("byteArray");
-            if (activity != null){
                 switch (msg.what){
 
                     case MyService.UPDATE_TABLET_TEXT_VIEW:
-                        updateReceiverBandScan(msg.getData().getString("freqString"));
+                        String myFreq = msg.getData().getString("freqString");
+                        mStationFreq.setText(myFreq);
+                        //updateReceiverBandScan(msg.getData().getString("freqString"));
                         updateTabletTextViews();
                         break;
                     case MyService.UPDATE_BANDSCAN:
+                        mStationFreq.setText(msg.getData().getString("freqString"));
                         updateReceiverBandScan(msg.getData().getString("freqString"));
                             break;
                     case MyService.NEW_ALERT:
@@ -1012,7 +1003,6 @@ public class NipperActivity extends Activity {
                         break;
                 }
             }
-        }
 
     }
 

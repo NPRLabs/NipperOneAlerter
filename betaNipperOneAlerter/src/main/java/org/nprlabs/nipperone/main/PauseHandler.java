@@ -58,17 +58,17 @@ public abstract class PauseHandler extends Handler {
      * message when the activity was paused.
      * @param message
      */
-    abstract protected void processMessage(Activity activity, Message message);
+    abstract protected void processMessage(Message message);
 
     @Override
     public final synchronized void handleMessage(Message msg){
 
-        if(activity != null & paused){
+        if(paused){
             final Message msgCopy = new Message();
             msgCopy.copyFrom(msg);
             messageQueueBuffer.add(msgCopy);
         }else{
-            processMessage(activity, msg);
+            processMessage(msg);
         }
     }
 

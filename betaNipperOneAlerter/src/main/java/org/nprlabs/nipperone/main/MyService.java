@@ -3,8 +3,10 @@ package org.nprlabs.nipperone.main;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Message;
@@ -19,8 +21,11 @@ import com.hoho.android.usbserial.util.SerialInputOutputManager;
 import org.nprlabs.nipperone.framework.DatabaseHandler;
 import org.nprlabs.nipperone.framework.NipperConstants;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by kbrudos on 7/8/2015.
@@ -38,31 +43,35 @@ public class MyService extends Service {
     static final int NEW_ALERT = 4;
     static final int ALERT_DONE = 5;
 
+    private Activity activity = null;
 
     static boolean isRunning = false;
 
     private AlertImpl myMsg = new AlertImpl();
     private DatabaseHandler dbHandler;
 
-    final SerialInputOutputManager.Listener mListener = new SerialInputOutputManager.Listener() {
+    private SerialInputOutputManager.Listener mListener =new SerialInputOutputManager.Listener() {
         @Override
         public void onRunError(Exception e) {
             Log.d(TAG, "SerialInputOutputManagerListener Runner stopped.");
         }
         @Override
         public void onNewData(final byte[] data) {
-            new Runnable() {
+            new Thread(new Runnable() {
                 @Override
                 public void run() {
                     Log.d(TAG, "serial I/O manager started");
                     processReceivedData(data);  //NipperOneAlerter.this.updateReceivedData(data);
-                }
-            };
-        }
-    };
 
+                }
+            });
+    }};
+
+    private UsbSerialDriver sDriver;
     private SerialInputOutputManager mSerialIoManager;
     private PendingIntent mPermissionIntent = null;
+    private final ExecutorService mExecutor = Executors.newSingleThreadExecutor();
+
     private Messenger mClient = null;
     private Messenger mMessenger = new Messenger(new IncomingHandler());
 
@@ -75,8 +84,11 @@ public class MyService extends Service {
         super.onCreate();
         Log.d(TAG, "S:onCreate: Service Started.");
 
+        NipperConstants.mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
+
         dbHandler = DatabaseHandler.getInstance(this);
     }
+
 
     public static boolean getIsRunning(){
         return isRunning;
@@ -85,6 +97,30 @@ public class MyService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         Log.d(TAG, "service bound");
+
+        if(sDriver == null){
+            probeUSBforReceiver();
+        }
+
+        if(sDriver !=null){
+            try{
+                sDriver.open();
+                sDriver.setParameters(115200, 8, UsbSerialDriver.STOPBITS_1, UsbSerialDriver.PARITY_NONE);
+                onDeviceStateChange();
+            }
+            catch(IOException e){
+
+                Log.e(TAG, "Error setting up NipperOne: " + e.getMessage(), e);
+                //mMessage.setText("Error opening NipperOne: " + e.getMessage() + "\n");
+                try {
+                    sDriver.close();
+                } catch (IOException e2) {
+                    Log.e("onResume",e2.getMessage());   // Ignore.
+                }
+                sDriver = null;
+            }
+        }
+
         return mMessenger.getBinder();
     }
 
@@ -163,8 +199,8 @@ public class MyService extends Service {
             switch (data[NipperConstants.receiverByteReturnMode]){
                 case NipperConstants.RECEIVER_MODE_STATUS:
                     updateTabletTextViews(data);
-                    System.out.println("The tablet views were updated");
-                    sendMessageToUI(UPDATE_TABLET_TEXT_VIEW);
+                    Log.d(TAG, "The tablet views were updated");
+                    sendMessageToUI(UPDATE_TABLET_TEXT_VIEW, displayFreqString);
 
                     break;
                 case NipperConstants.RECEIVER_MODE_TEXT:
@@ -183,7 +219,7 @@ public class MyService extends Service {
                     break;
                 case NipperConstants.RECEIVER_MODE_BANDSCAN:
                     updateReceiverBandscan(data);
-                    sendMessageToUI(UPDATE_BANDSCAN);
+                    sendMessageToUI(UPDATE_BANDSCAN, displayFreqString);
                     break;
                 case NipperConstants.RECEIVER_MODE_EASDATA:
                     myMsg = NipperConstants.myReceiver.updateReceiverEASData(data, myMsg);
@@ -362,6 +398,7 @@ public class MyService extends Service {
      *
      */
     private void probeUSBforReceiver() {
+        Log.d(TAG, "Probing for the Receiver");
         for (final UsbDevice device : NipperConstants.mUsbManager.getDeviceList().values()) {
             if (device.getVendorId() == 0x1320) {
                 Log.d(TAG, "Found Catena (NipperOne) USB device: " + device);
@@ -380,7 +417,7 @@ public class MyService extends Service {
                         // the incoming receiver data, once we've set sDriver to the proper CDC driver.
                         for (UsbSerialDriver driver : drivers) {
                             // Most important line in the function: Assigns the driver to sDriver.
-                            NipperConstants.sDriver = driver;
+                            sDriver = driver;
                             Log.d(TAG, "  + " + driver);
                             //mMessage.append("Ready...\n");
                         }
@@ -412,10 +449,10 @@ public class MyService extends Service {
      * starts its async process.
      */
     private void startIoManager() {
-        if (NipperConstants.sDriver != null) {
+        if (sDriver != null) {
             Log.i(TAG, "Starting io manager ..");
-            mSerialIoManager = new SerialInputOutputManager(NipperConstants.sDriver, mListener);
-           // mExecutor.submit(mSerialIoManager);
+            mSerialIoManager = new SerialInputOutputManager(sDriver, mListener);
+            mExecutor.execute(mSerialIoManager);
             // Not strictly necessary but nice to have the firmware version available.
         }
     }
@@ -424,16 +461,20 @@ public class MyService extends Service {
      * Stop and re-start the serialIOManager
      */
     private void onDeviceStateChange() {
+        Log.d(TAG, "On device state change called");
         stopIoManager();
         startIoManager();
+    }
+    public void setActivity(Activity activity){
+        this.activity = activity;
     }
 
 
     /**
      *
-     * @param valueToSend
+     *
      */
-    private void sendMessageToUI(int valueToSend){
+    private void sendMessageToUI(int what, String string){
 
         Log.i(TAG, "Sending a message to the UI");
         try{
@@ -441,16 +482,16 @@ public class MyService extends Service {
 
             Message msg = new Message();
 
-            switch (valueToSend) {
+            switch (what) {
 
                 case UPDATE_TABLET_TEXT_VIEW:
-                    msg.what = valueToSend;
-                    msgBundle.putString("freqString", displayFreqString);
+                    msg.what = what;
+                    msgBundle.putString("freqString", string);
                     msg.setData(msgBundle);
                     break;
                 case UPDATE_BANDSCAN:
-                    msg.what = valueToSend;
-                    msgBundle.putString("freqString", displayFreqString);
+                    msg.what = what;
+                    msgBundle.putString("freqString", string);
                     msg.setData(msgBundle);
                     break;
                 default:
@@ -467,14 +508,14 @@ public class MyService extends Service {
     private class IncomingHandler extends PauseHandler{
 
         @Override
-        public void processMessage(Activity activity,Message msg){
+        public void processMessage(Message msg){
 
-            if(activity != null)
             switch(msg.what){
 
                 case SET_CLIENT:
                     Log.d(TAG, "Set the service client!");
                     mClient = msg.replyTo;
+                    sendMessageToUI(UPDATE_BANDSCAN, "101.5");
                     break;
                 case REMOVE_CLIENT:
                     Log.d(TAG, "removed the service client");
@@ -486,7 +527,6 @@ public class MyService extends Service {
                     super.handleMessage(msg);
                     break;
             }
-
         }
     }//end of IncomingHandler
 }

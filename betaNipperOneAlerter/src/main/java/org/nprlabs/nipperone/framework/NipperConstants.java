@@ -52,9 +52,6 @@ public class NipperConstants {
     public static String versionNipperOneReceiver = "unknown";
 
     public static UsbManager mUsbManager;
-    public static UsbSerialDriver sDriver = null;
-
-    public static TextView mStationFreq;
     public static Receiver myReceiver = new Receiver();
 
 
