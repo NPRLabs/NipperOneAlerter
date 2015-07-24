@@ -13,6 +13,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
@@ -42,39 +43,42 @@ public class MyService extends Service {
     static final int UPDATE_TABLET_TEXT_VIEW = 3;
     static final int NEW_ALERT = 4;
     static final int ALERT_DONE = 5;
+    static final int TEST = 6;
 
     private Activity activity = null;
 
     static boolean isRunning = false;
 
     private AlertImpl myMsg = new AlertImpl();
-    private DatabaseHandler dbHandler;
+    private final ExecutorService mExecutor = Executors.newFixedThreadPool(2);
 
     private SerialInputOutputManager.Listener mListener =new SerialInputOutputManager.Listener() {
+
         @Override
         public void onRunError(Exception e) {
             Log.d(TAG, "SerialInputOutputManagerListener Runner stopped.");
         }
         @Override
         public void onNewData(final byte[] data) {
-            new Thread(new Runnable() {
+            //Log.d("mListener", "Got some new data!");
+            mExecutor.submit(new Runnable() {
                 @Override
                 public void run() {
-                    Log.d(TAG, "serial I/O manager started");
-                    processReceivedData(data);  //NipperOneAlerter.this.updateReceivedData(data);
-
+                    //Log.d(TAG, "serial I/O manager/processes data started");
+                    processReceivedData(data);
                 }
             });
-    }};
+        }
+    };
 
     private UsbSerialDriver sDriver;
     private SerialInputOutputManager mSerialIoManager;
     private PendingIntent mPermissionIntent = null;
-    private final ExecutorService mExecutor = Executors.newSingleThreadExecutor();
+
 
     private Messenger mClient = null;
     private Messenger mMessenger = new Messenger(new IncomingHandler());
-
+    private int messageCount = 0;
     private String displayFreqString = "";
 
 
@@ -86,7 +90,7 @@ public class MyService extends Service {
 
         NipperConstants.mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
 
-        dbHandler = DatabaseHandler.getInstance(this);
+
     }
 
 
@@ -184,23 +188,15 @@ public class MyService extends Service {
      */
     public void processReceivedData(byte[] data) {
 
-        Log.d(TAG, "processing receiver data.");
+        //Log.d(TAG, "processing receiver data.");
 
-        // 0xED = -19d = Notification from the receiver
-        // 0xEE = -18d = Return of requested data
-        // (All Java bytes are signed)
-        // REFERENCE: http://stackoverflow.com/questions/11088/what-is-the-best-way-to-work-around-the-fact-that-all-java-bytes-are-signed
-
-        if(NipperConstants.messageCount > 0 && dbHandler.getMessageCount()> 0 && dbHandler.msgExists(NipperConstants.messageCount)){
-            myMsg= dbHandler.getMessage(NipperConstants.messageCount);
-        }
 
         if (data[NipperConstants.receiverByteReturnType] == NipperConstants.receiverReturnTypeNotification) {
             switch (data[NipperConstants.receiverByteReturnMode]){
                 case NipperConstants.RECEIVER_MODE_STATUS:
                     updateTabletTextViews(data);
-                    Log.d(TAG, "The tablet views were updated");
-                    sendMessageToUI(UPDATE_TABLET_TEXT_VIEW, displayFreqString);
+                    //Log.d(TAG, "The tablet views were updated");
+                    sendMessageToUI(UPDATE_BANDSCAN);
 
                     break;
                 case NipperConstants.RECEIVER_MODE_TEXT:
@@ -209,23 +205,23 @@ public class MyService extends Service {
 
                     NipperConstants.expectingMoreAlertText = NipperConstants.myReceiver.get_expectingMoreAlertText();
 
-                    if(dbHandler.msgExists(NipperConstants.messageCount)){
-                        dbHandler.updateMessage(myMsg);
-                        System.out.println("#1I updated the message!!!!!! message is now: " + myMsg.ShortMsgtoString());
+                    if(NipperConstants.dbHandler.msgExists(messageCount)){
+                        NipperConstants.dbHandler.updateMessage(myMsg);
+                        //System.out.println("#1I updated the message!!!!!! message is now: " + myMsg.ShortMsgtoString());
                     }else{
-//                        System.out.println("DID NOT UPDATE THE DATABASE, CASE WAS FALSE");
+                        System.out.println("DID NOT UPDATE THE DATABASE, CASE WAS FALSE");
                     }
-                    System.out.println("UPDATE");
+                    //System.out.println("UPDATE");
                     break;
                 case NipperConstants.RECEIVER_MODE_BANDSCAN:
                     updateReceiverBandscan(data);
-                    sendMessageToUI(UPDATE_BANDSCAN, displayFreqString);
+                    sendMessageToUI(UPDATE_BANDSCAN);
                     break;
                 case NipperConstants.RECEIVER_MODE_EASDATA:
                     myMsg = NipperConstants.myReceiver.updateReceiverEASData(data, myMsg);
                     //System.out.println("This is what Message String is currently: " + myMsg.getMsgString());
-                    if(NipperConstants.isAlarm && dbHandler.msgExists(NipperConstants.messageCount)){
-                        dbHandler.updateMessage(myMsg);
+                    if(NipperConstants.isAlarm && NipperConstants.dbHandler.msgExists(messageCount)){
+                        NipperConstants.dbHandler.updateMessage(myMsg);
 //                        System.out.println("#2I updated the message!!!!!! message is now: " + myMsg.ShortMsgtoString());
                         //System.out.println("Did not add a new alert message, updated existing one.");
                     }
@@ -256,8 +252,8 @@ public class MyService extends Service {
             if (NipperConstants.expectingMoreAlertText) {
                 if (NipperConstants.isAlarm){
                     myMsg = NipperConstants.myReceiver.updateReceiverAlertMessage(data, true, myMsg);
-                    if(dbHandler.msgExists(NipperConstants.messageCount)){
-                        dbHandler.updateMessage(myMsg);
+                    if(NipperConstants.dbHandler.msgExists(messageCount)){ //if the message exists we want to update it not add a second copy!
+                        NipperConstants.dbHandler.updateMessage(myMsg);
                         //System.out.println("#3I updated the message!!!!!! message is now: " + myMsg.ShortMsgtoString());
                     }
                 }
@@ -265,8 +261,8 @@ public class MyService extends Service {
 
             }
         }
+    } // END processReceivedData(byte[] data)
 
-    } // END updateReceivedData()
 
     /**
      *
@@ -341,6 +337,45 @@ public class MyService extends Service {
             //if ((data[47] & FLAG_HAVE_ALARM) == FLAG_HAVE_ALARM) {
             //    isAlarm = true;
             //} else isAlarm = false;
+
+            //Log.d(TAG, "isAlarm set: " + NipperConstants.isAlarm + "     HaveSetAlarmScreen: " + NipperConstants.HaveSetAlarmScreen);
+
+
+
+            if(!NipperConstants.isAlarm && NipperConstants.HaveSetAlarmScreen){
+                Log.d(TAG, "#1");
+                NipperConstants.HaveSetAlarmScreen = false;
+                // Clean up the display and flush any remaining alert message text.
+                NipperConstants.dbHandler.updateMessage(myMsg);
+
+                //sendMessageToUI(ALERT_DONE);
+                Toast.makeText(getApplicationContext(), "The Alert Transmission has ended.", Toast.LENGTH_SHORT).show();
+
+
+
+            }else if(NipperConstants.isAlarm && !NipperConstants.HaveSetAlarmScreen){
+                Log.d(TAG, "#2");
+                NipperConstants.HaveSetAlarmScreen = true;
+                NipperConstants.dbHandler.addMessage(myMsg);
+                Log.d(TAG, "Added a new message to the database");
+
+                //update the current variables
+                if(NipperConstants.dbHandler.getMessageCount()>0){
+                    messageCount = NipperConstants.dbHandler.getMessageCount();
+                }
+
+                if( messageCount> 0 && NipperConstants.dbHandler.msgExists(messageCount)){
+                    myMsg= NipperConstants.dbHandler.getMessage(messageCount);
+                }
+
+                //Toast.makeText(getApplicationContext(), "An Alert Transmission is starting.", Toast.LENGTH_SHORT).show();
+
+
+            }else{
+                //Log.d(TAG, "##### none of the conditions are true :( ");
+            }
+
+
 
 
             // Rdata[17..20] Call sign: format: CCCC
@@ -474,9 +509,9 @@ public class MyService extends Service {
      *
      *
      */
-    private void sendMessageToUI(int what, String string){
+    private void sendMessageToUI(int what){
 
-        Log.i(TAG, "Sending a message to the UI");
+        //Log.i(TAG, "Sending a message to the UI");
         try{
             Bundle msgBundle = new Bundle();
 
@@ -486,13 +521,16 @@ public class MyService extends Service {
 
                 case UPDATE_TABLET_TEXT_VIEW:
                     msg.what = what;
-                    msgBundle.putString("freqString", string);
+                    msgBundle.putString("freqString", displayFreqString);
                     msg.setData(msgBundle);
                     break;
                 case UPDATE_BANDSCAN:
                     msg.what = what;
-                    msgBundle.putString("freqString", string);
+                    msgBundle.putString("freqString", displayFreqString);
                     msg.setData(msgBundle);
+                    break;
+                case ALERT_DONE:
+                    msg.what = what;
                     break;
                 default:
                     break;
@@ -500,7 +538,7 @@ public class MyService extends Service {
             mClient.send(msg);
         }
         catch(RemoteException e){
-
+            Log.e(TAG, "Remote Exception, Problem sending message");
         }
 
     }
@@ -515,13 +553,11 @@ public class MyService extends Service {
                 case SET_CLIENT:
                     Log.d(TAG, "Set the service client!");
                     mClient = msg.replyTo;
-                    sendMessageToUI(UPDATE_BANDSCAN, "101.5");
+                    sendMessageToUI(TEST);
                     break;
                 case REMOVE_CLIENT:
                     Log.d(TAG, "removed the service client");
                     mClient = null;
-                    break;
-                case UPDATE_BANDSCAN:
                     break;
                 default:
                     super.handleMessage(msg);

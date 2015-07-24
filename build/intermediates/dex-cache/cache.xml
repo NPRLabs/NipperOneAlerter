@@ -2,13 +2,6 @@
 <items version="2" >
 
     <item
-        jar="C:\Users\kbrudos\Documents\AndroidStudioWorkspace\betaNipperOneAlerter\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\jars\classes.jar"
-        jumboMode="false"
-        revision="22.0.1"
-        sha1="2c91c949a45a21cdecf26e03951e46c7beec9ad8">
-        <dex dex="C:\Users\kbrudos\Documents\AndroidStudioWorkspace\betaNipperOneAlerter\build\intermediates\pre-dexed\debug\classes-b7e9e10f1904cf5f1f1a1e5aea077a921521cb88.jar" />
-    </item>
-    <item
         jar="C:\Users\kbrudos\AppData\Local\Android\android-sdk\extras\android\m2repository\com\android\support\support-annotations\21.0.3\support-annotations-21.0.3.jar"
         jumboMode="false"
         revision="22.0.1"
@@ -21,6 +14,13 @@
         revision="22.0.1"
         sha1="01ec05bfbafcc07646ba813000bf2ef11742dd03">
         <dex dex="C:\Users\kbrudos\Documents\AndroidStudioWorkspace\betaNipperOneAlerter\build\intermediates\pre-dexed\debug\internal_impl-21.0.3-297bb3d874235029e21e1a3d9e0825759ca97344.jar" />
+    </item>
+    <item
+        jar="C:\Users\kbrudos\Documents\AndroidStudioWorkspace\betaNipperOneAlerter\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\jars\classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="2c91c949a45a21cdecf26e03951e46c7beec9ad8">
+        <dex dex="C:\Users\kbrudos\Documents\AndroidStudioWorkspace\betaNipperOneAlerter\build\intermediates\pre-dexed\debug\classes-b7e9e10f1904cf5f1f1a1e5aea077a921521cb88.jar" />
     </item>
     <item
         jar="C:\Users\kbrudos\Documents\AndroidStudioWorkspace\betaNipperOneAlerter\build\intermediates\exploded-aar\AndroidStudioWorkspace\wheel\unspecified\jars\classes.jar"

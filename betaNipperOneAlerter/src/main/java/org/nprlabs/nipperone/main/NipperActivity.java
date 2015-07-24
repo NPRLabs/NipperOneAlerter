@@ -244,11 +244,6 @@ public class NipperActivity extends Activity {
     // Our local resources, such as stored colors
     private Resources nipperRes;
 
-    /**
-     * Indicates if we're showing the alarm screen
-     */
-    private static Boolean HaveSetAlarmScreen = false;
-
 //     /**
      //     * Receiver Alarm Status Flag (set and cleared in updateReceiverStatus())
      //     * Set = ALARM, Cleared = Normal
@@ -259,15 +254,11 @@ public class NipperActivity extends Activity {
      * It is used by the Toast widget.
      */
     private static Context parentContext;
-
     private static AlertImpl myMsg = new AlertImpl();
-
-    private static DatabaseHandler dbHandler;
+    private AlertImpl newMsg = new AlertImpl();
     private static int messageCount = 0;
-
     boolean messageComplete = false;
 
-    AlertImpl newMsg = new AlertImpl();
 
     //variables having to do with the Service and it's connection.
     //mService is used to send
@@ -308,6 +299,7 @@ public class NipperActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "------onCreate------");
 
         // This will manually hide the activity bar and nav bar, but only until the user touches the screen.
         //this.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -322,18 +314,19 @@ public class NipperActivity extends Activity {
 
         setContentView(R.layout.main);
 
-        dbHandler = DatabaseHandler.getInstance(this);
+        //this should be the only way that the database is accessed. The constructor should never be used
+        NipperConstants.dbHandler = DatabaseHandler.getInstance(this);
 
 //        dbHandler.addMessage(newMsg);
 
         //message count is set like this only once. Here. This way if you are restarting
         // the app you get the number of messages currently in the database.
         //Also if there is a current database the most recent message is retrieved.
-        messageCount = dbHandler.getMessageCount();
+        messageCount = NipperConstants.dbHandler.getMessageCount();
         Log.d("Message Count onCreate", Integer.toString(messageCount));
 
-        if(dbHandler.getMessageCount() == 0){}
-        else{myMsg= dbHandler.getMessage(dbHandler.getMessageCount());}
+        if(NipperConstants.dbHandler.getMessageCount() == 0){}
+        else{myMsg= NipperConstants.dbHandler.getMessage(NipperConstants.dbHandler.getMessageCount());}
 
 
         // We get the local resources instance so we can get our stored colors
@@ -703,7 +696,7 @@ public class NipperActivity extends Activity {
 
     public void viewMostRecent(View view){
 
-        messageCount = dbHandler.getMessageCount();
+        messageCount = NipperConstants.dbHandler.getMessageCount();
 
         String tmpString = "";
 
@@ -714,35 +707,15 @@ public class NipperActivity extends Activity {
             CustomDialog d = new CustomDialog(this);
             d.show();
         }
-//            MessageImpl msg = dbHandler.getMessage(messageCount);
-//            tmpString = String.format("ID: %d\nEvent: %s\nCertainty: %s\nSeverity: %s\nUrgency: %s\nCategory: %s\nDuration: %s\nOrigin time: %s\nOriginator: %s\nType: %s\nMessage: %s\n", msg.getId(), msg.getEventString(), msg.getMsgCertainty(), msg.getMsgSeverity(), msg.getMsgUrgency(), msg.getMsgCategory(), msg.getMsgDuration(), msg.getMsgOrgTime(), msg.getMsgOriginator(), msg.getMsgType(), msg.getMsgString());
-//        }
-//
-//        // Instead of making a Toast, display an "OK"-only dialog.
-//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//        builder.setTitle("More information about this alert");
-//        // Set our icon for the title.
-//        builder.setIcon(R.drawable.nprlabslogo);
-//        // Set our message.
-//        builder.setMessage(tmpString);
-//        // Add the OK button. Dialog box will disappear when OK is touched.
-//        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-//            public void onClick(DialogInterface dialog, int id) {
-//                // User clicked OK button
-//            }
-//        });
-//        // Create the AlertDialog
-//        AlertDialog dialog = builder.create();
-//        dialog.show();
     }
 
 
     public void viewMessageArchive(View view){
 //        Toast toast = Toast.makeText(getApplicationContext(), "Clicked to view the current Message!", Toast.LENGTH_SHORT );
 //        toast.show();
-        messageCount = dbHandler.getMessageCount();
+        messageCount = NipperConstants.dbHandler.getMessageCount();
         String tmpString = "";
-        List<AlertImpl> messageList = dbHandler.getAllMessages();
+        List<AlertImpl> messageList = NipperConstants.dbHandler.getAllMessages();
 
         if(messageCount == 0){tmpString = "There are currently no messages in the database to display.";}
         else {
@@ -845,48 +818,42 @@ public class NipperActivity extends Activity {
             // Change the background message box color on ALARM,
             // Return to normal otherwise.
 
-            if (NipperConstants.isAlarm){
-
-                if (!HaveSetAlarmScreen ) {
-
-                    messageCount++;
-                    dbHandler.addMessage(new AlertImpl());
-                    myMsg = dbHandler.getMessage(messageCount);
-                    System.out.println("NEW MESSAGE ADDED! " + myMsg.ShortMsgtoString());
-
-                    Log.d("Message Count in UTTV", Integer.toString(messageCount));
-
-//                    messageLayout.setVisibility(RelativeLayout.VISIBLE);
+//            if (NipperConstants.isAlarm){
 //
-//                    if (Build.VERSION.SDK_INT >= 16) {
-//                        messageLayout.setBackground(NipperActivity.drawMessageAlarm);
-//                    }
-//                    else {
-//                        messageLayout.setBackground(NipperActivity.drawMessageAlarm);
-//                    }
-
-                    //mEASEvent.setTextColor(nipperRes.getColor(R.color.defaultTextColorMessageAlarm));
-                    //messageLayout.setBackgroundColor(nipperRes.getColor(R.color.defaultBackgroundMessageAlarm));
-
-//                    android.text.format.Time now = new android.text.format.Time();
-//                    now.setToNow();
-//                    SimpleDateFormat formatter;
-//                    formatter = new SimpleDateFormat("MMMMM dd,yyyy hh:mm aaa");
-                    //mMessage.append("\n\n---| ALARM Message received " + formatter.format(new Date()) + " |---\n");
-                    Toast.makeText(parentContext, "An Alert Transmission is starting.", Toast.LENGTH_SHORT).show();
-
-                    HaveSetAlarmScreen = true;
-                }
-            } else {
-                // If we're in a Alarm screen mode, then we'll clear it.
-                if (HaveSetAlarmScreen) {
-                    // Clean up the display and flush any remaining alert message text.
-                    dbHandler.updateMessage(myMsg);
-
-                    clearAlarmScreen();
-                    Toast.makeText(parentContext, "The Alert Transmission has ended.", Toast.LENGTH_SHORT).show();
-                }
-            }
+//                if (!NipperConstants.HaveSetAlarmScreen ) {
+////                    NipperConstants.HaveSetAlarmScreen = true;
+//
+//                    messageCount = dbHandler.getMessageCount();
+//                    myMsg = dbHandler.getMessage(messageCount);
+//
+//                    //Log.d("Message Count in UTTV", Integer.toString(messageCount));
+//
+////                    messageLayout.setVisibility(RelativeLayout.VISIBLE);
+////                    messageLayout.setBackground(NipperActivity.drawMessageAlarm);
+//
+//
+//                    //mEASEvent.setTextColor(nipperRes.getColor(R.color.defaultTextColorMessageAlarm));
+//                    //messageLayout.setBackgroundColor(nipperRes.getColor(R.color.defaultBackgroundMessageAlarm));
+//
+////                    android.text.format.Time now = new android.text.format.Time();
+////                    now.setToNow();
+////                    SimpleDateFormat formatter;
+////                    formatter = new SimpleDateFormat("MMMMM dd,yyyy hh:mm aaa");
+//                    //mMessage.append("\n\n---| ALARM Message received " + formatter.format(new Date()) + " |---\n");
+//                    //Toast.makeText(parentContext, "An Alert Transmission is starting.", Toast.LENGTH_SHORT).show();
+//
+//                    //NipperConstants.HaveSetAlarmScreen = true;
+//                }
+//            } else {
+//                // If we're in a Alarm screen mode, then we'll clear it.
+////                if (NipperConstants.HaveSetAlarmScreen) {
+////                    // Clean up the display and flush any remaining alert message text.
+////                    dbHandler.updateMessage(myMsg);
+////
+////                    clearAlarmScreen();
+////                    Toast.makeText(parentContext, "The Alert Transmission has ended.", Toast.LENGTH_SHORT).show();
+////                }
+//            }
 
     } // END updateReceiverStatus()
 
@@ -935,7 +902,7 @@ public class NipperActivity extends Activity {
     private static void clearAlarmScreen() {
 
         resetAlertStructure();
-        HaveSetAlarmScreen = false;
+        NipperConstants.HaveSetAlarmScreen = false;
     }
 
     /**
@@ -956,7 +923,7 @@ public class NipperActivity extends Activity {
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @SuppressWarnings("deprecation")
     public static void receiverNotConnected() {
-        if (HaveSetAlarmScreen) {}
+        if (NipperConstants.HaveSetAlarmScreen) {}
         //mMessage.append(messageReceiverDisconnected);
 //        mBeaconStatus.setText("");
 //        mSignalLevel.setText("");
@@ -981,23 +948,22 @@ public class NipperActivity extends Activity {
 
             //final Activity activity = this.activity;
             byte[] data = msg.getData().getByteArray("byteArray");
+
                 switch (msg.what){
 
                     case MyService.UPDATE_TABLET_TEXT_VIEW:
-                        String myFreq = msg.getData().getString("freqString");
-                        mStationFreq.setText(myFreq);
+                        mStationFreq.setText(msg.getData().getString("freqString"));
                         //updateReceiverBandScan(msg.getData().getString("freqString"));
                         updateTabletTextViews();
                         break;
                     case MyService.UPDATE_BANDSCAN:
                         mStationFreq.setText(msg.getData().getString("freqString"));
-                        updateReceiverBandScan(msg.getData().getString("freqString"));
-                            break;
-                    case MyService.NEW_ALERT:
-                        //TODO make a notification show up? or do it from the service...
+                        break;
+                    case MyService.TEST:
+                        mStationFreq.setText("Searching");
                         break;
                     case MyService.ALERT_DONE:
-                        //TODO not sure that this one is necessary
+                        clearAlarmScreen();
                         break;
                     default:
                         break;

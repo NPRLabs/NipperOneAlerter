@@ -407,12 +407,12 @@ public class Receiver {
                         case 3:
                             rdsvalidation.rdsSubmitMessageRepeat(currentTextNotification);
 
-                            Log.d("updateReceiverAlertMsg", String.format("Segment %d Confidence Score: %.1f%%",
-                                    updateReceiverAlertMessage_Segment,
-                                    rdsvalidation.getValidityScore()));
-                            Log.d("Got to case #3, URAM", rdsvalidation.getMessageString());
+//                            Log.d("updateReceiverAlertMsg", String.format("Segment %d Confidence Score: %.1f%%",
+//                                    updateReceiverAlertMessage_Segment,
+//                                    rdsvalidation.getValidityScore()));
+                            //Log.d("Got to case #3, URAM", rdsvalidation.getMessageString());
                             myMsg.appendMessageString(rdsvalidation.getMessageString());
-                            System.out.println("Current Message URAM case3: " + myMsg.getMsgString());
+                            //System.out.println("Current Message URAM case3: " + myMsg.getMsgString());
                             break;
                         default:
                            //String tmpMsg = String.format("[%d](%d)%s", updateReceiverAlertMessage_Segment, alerttextSegment, new String(currentTextNotification));
@@ -433,10 +433,10 @@ public class Receiver {
                    if ((messageRepeatCount == 2) || (messageRepeatCount == 1) ) {
                        // If we find only 2 (or less likely, 1) repeats AND the Segment number has already changed, we need to print ASAP!
                        myMsg.appendMessageString(rdsvalidation.getMessageString());
-                       Log.e("updateReceiverAlertMsg",String.format("Message Repeat count was: %d for Segment %d Confidence Score: %.1f%%",
-                               messageRepeatCount,
-                               updateReceiverAlertMessage_SegmentPrevious, 
-                               rdsvalidation.getValidityScore()));
+//                       Log.e("updateReceiverAlertMsg",String.format("Message Repeat count was: %d for Segment %d Confidence Score: %.1f%%",
+//                               messageRepeatCount,
+//                               updateReceiverAlertMessage_SegmentPrevious,
+//                               rdsvalidation.getValidityScore()));
                    }
                    messageRepeatCount = 1;
                    updateReceiverAlertMessage_SegmentPrevious = updateReceiverAlertMessage_Segment;
@@ -465,7 +465,7 @@ public class Receiver {
           ex.printStackTrace(); //ex.getMessage());
           //mMessage.append("ERROR:" + ex.getMessage()+ "\n");
       }
-       Log.d("##Short Message so far", myMsg.ShortMsgtoString());
+       //Log.d("##Short Message so far", myMsg.ShortMsgtoString());
        msg = myMsg.getMsgString();
        return myMsg;
   
@@ -541,7 +541,7 @@ public class Receiver {
                    int msgType = (msbC & 0x70) >>> 4;
                    msgID = ((msbC & 0x0F) << 8) + lsbC;
                    msgDigest = (msbD << 8) + lsbD;
-                   Log.d("MESSAGE ID-DIGEST",String.format("Message Type: %d Message ID: %d  Message Digest: %d", msgType, msgID,msgDigest));
+                   //Log.d("MESSAGE ID-DIGEST",String.format("Message Type: %d Message ID: %d  Message Digest: %d", msgType, msgID,msgDigest));
                    
                    myMsg.setType(typeMessage.get(msgType));
 //####                   myMsg.setEndMsg(false);
@@ -612,7 +612,7 @@ public class Receiver {
                    if (alerttextSegment == 0) {
                        if (prepareAlertTextSegment)  {                   
                            prepareAlertTextSegment = false;                           
-                           if (alertMessageText != null) Log.d("FULL ALERT MESSAGE",alertMessageText.toString());
+                           //if (alertMessageText != null) Log.d("FULL ALERT MESSAGE",alertMessageText.toString());
                            String tmpAlertCodes = "Certainty: " + codeCertainty.get(shortcodeCertainty) +
                                                 "\n Severity: " + codeSeverity.get(shortcodeSeverity) +
                                                 "\n  Urgency: " + codeUrgency.get(shortcodeUrgency) +
@@ -640,7 +640,7 @@ public class Receiver {
                    
                    StringBuilder evtCode = new StringBuilder();
                    evtCode.append((char)lsbC).append((char)msbD).append((char)lsbD);
-                   Log.d("EventCode",evtCode.toString());
+                   //Log.d("EventCode",evtCode.toString());
                    myMsg.setEvent(codeEvent.get(evtCode.toString()));
                    break;
                //endregion
@@ -682,10 +682,10 @@ public class Receiver {
                                    myMsg.appendMessageString(rdsvalidation.getMessageString());
                                    //myMsg.setEndMsg(true);
                                    Arrays.fill(alertMessageTextTemp, (byte) 0x20);
-                                   Log.e("updateReceivereasdATA",String.format("Message Repeat count was: %d for Segment %d Confidence Score: %.1f%%",
-                                   messageRepeatCount,
-                                   alerttextSegmentPrevious, 
-                                   rdsvalidation.getValidityScore()));
+//                                   Log.e("updateReceivereasdATA",String.format("Message Repeat count was: %d for Segment %d Confidence Score: %.1f%%",
+//                                   messageRepeatCount,
+//                                   alerttextSegmentPrevious,
+//                                   rdsvalidation.getValidityScore()));
                                }
                                messageRepeatCount = 1;
                                alerttextSegmentPrevious = alerttextSegment;
@@ -724,9 +724,9 @@ public class Receiver {
                                    //System.out.println("##### current message in Receiver: " + myMsg.getMsgString());
                                    //myMsg.setEndMsg(true);
                                    //Arrays.fill(alertMessageTextTemp, (byte) 0x20);
-                                   Log.d("updateReceivereasdata",String.format("Segment %d Confidence Score: %.1f%%",
-                                           alerttextSegment, 
-                                           rdsvalidation.getValidityScore())); 
+//                                   Log.d("updateReceivereasdata",String.format("Segment %d Confidence Score: %.1f%%",
+//                                           alerttextSegment,
+//                                           rdsvalidation.getValidityScore()));
                                    break;
                                default:
                                    break;                   
