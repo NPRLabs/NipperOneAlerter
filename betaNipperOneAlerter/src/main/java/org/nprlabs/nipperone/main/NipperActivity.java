@@ -524,16 +524,20 @@ public class NipperActivity extends Activity {
 
     @Override
     public void onPause(){
-
+        Log.d(TAG, "---onPause---");
         super.onPause();
         msgHandler.pause();
     }
 
     @Override
     public void onResume(){
+        Log.d(TAG, "---onResume---");
         super.onResume();
         //msgHandler.setActivity(getActivity());
         msgHandler.resume(NipperActivity.this);
+        //when the receiver is re-connected the activity is paused and resumed (if the activity is
+        //already going). If not then the Broadcast receiver starts the main activity.
+        receiverConnected();
     }
 
     @Override
