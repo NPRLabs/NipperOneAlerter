@@ -1,5 +1,7 @@
 package org.nprlabs.nipperone.main;
 
+import android.app.ActivityManager;
+import android.app.Instrumentation;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -22,20 +24,33 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
     private String TAG = "BroadcastReceiver";
 
 
+    @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         if ( Intent.ACTION_TIME_TICK.equals(action) ) {
 
 
         }  else if ( UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action) ) {
-            //mMessage.append("\nThe Receiver is plugged in!\n");
-            //TODO add the start background service here!!
+            //sends a message to the service to look for the receiver.
+            Log.v(TAG, "-------USB receiver attached.------");
+            System.out.println("-------USB receiver attached.------");
+
+            if(NipperConstants.isActivityRunning){
+                NipperActivity.receiverConnected();
+            }else{
+                Log.v(TAG, "Activity not started yet.");
+                //context.startActivity(new Intent(null, NipperActivity.class));
+            }
+
+            NipperConstants.receiverConnected = true;
 
 
         } else if ( UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action) ) {
             // Either the receiver has been rebooted or physically disconnected from the tablet.
             // Bring this to the user's attention.
+            Log.d(TAG, "-------usb unplugged!------");
             NipperActivity.receiverNotConnected();
+            NipperConstants.receiverConnected = false;
             //TODO add the stop background service here.
 
         } else if ( "org.prss.nprlabs.nipperonealerter.USBPERMISSION".equals(action) ) {

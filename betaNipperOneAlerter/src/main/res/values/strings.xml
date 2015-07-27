@@ -158,4 +158,7 @@
     <string name="btnMsgArchive">Message Archive</string>
     <string name="btnSettingsSC">Settings Shortcut</string>
 
+    <string name="service_new_message">New Incoming Alert</string>
+    <string name="service_label">Nipper One</string>
+
 </resources>

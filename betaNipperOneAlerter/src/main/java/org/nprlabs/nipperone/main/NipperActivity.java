@@ -262,8 +262,11 @@ public class NipperActivity extends Activity {
 
     //variables having to do with the Service and it's connection.
     //mService is used to send
-    private Messenger mService = null;
-    private Messenger mMessenger = new Messenger(new MessageHandler());
+    private static Messenger mService = null;
+    private static Messenger mMessenger = new Messenger(new MessageHandler());
+    private static boolean mIsBound = false;
+    private  MessageHandler msgHandler = new MessageHandler();
+
     public ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -285,8 +288,7 @@ public class NipperActivity extends Activity {
         }
     };
 
-    private boolean mIsBound = false;
-    private MessageHandler msgHandler = new MessageHandler();
+
 
 
 
@@ -406,8 +408,19 @@ public class NipperActivity extends Activity {
         mIsBound = true;
         sendMessageToService(MyService.SET_CLIENT);
 
+
     } // END onCreate()
 
+    @Override
+    public void onStart(){
+        super.onStart();
+        NipperConstants.isActivityRunning = true;
+    }
+    @Override
+    public void onStop(){
+        super.onStop();
+        NipperConstants.isActivityRunning = false;
+    }
 
     public void doUnbindService(){
         if(mIsBound){
@@ -432,7 +445,7 @@ public class NipperActivity extends Activity {
     }
 
 
-    private void sendMessageToService(int valueToSend){
+    private static void sendMessageToService(int valueToSend){
         if(mIsBound){
             if(mService != null){
                 try{
@@ -442,6 +455,8 @@ public class NipperActivity extends Activity {
                     Log.d("SEND_MESSAGE_TO_SERVICE", "msg was sent to the service!");
                 }catch (RemoteException e){
                 }
+            }else{
+                Log.d("NipperActivity", "mService is null, no message sent.");
             }
         }
 
@@ -913,6 +928,14 @@ public class NipperActivity extends Activity {
     private static void resetAlertStructure() {
         NipperConstants.myReceiver.resetAlertStructure();
     }
+
+
+    /**
+     * Method that is a work around to trigger the service to look for the receiver if it has been plugged in
+     * after the service/app has been started.
+     * Called from 'MyBroadcastReceiver' when the usb is plugged in.
+     */
+    public static void receiverConnected(){sendMessageToService(MyService.RECEIVER_CONNECTED);}
 
 
     /**

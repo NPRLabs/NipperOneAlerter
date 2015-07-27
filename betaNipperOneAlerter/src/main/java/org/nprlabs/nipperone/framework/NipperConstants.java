@@ -54,5 +54,7 @@ public class NipperConstants {
     public static DatabaseHandler dbHandler;
     public static UsbManager mUsbManager;
     public static Receiver myReceiver = new Receiver();
+    public static boolean isActivityRunning = false;
+    public static boolean receiverConnected = false;
 
 }

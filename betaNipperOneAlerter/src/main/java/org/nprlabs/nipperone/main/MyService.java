@@ -1,8 +1,11 @@
 package org.nprlabs.nipperone.main;
 
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.usb.UsbDevice;
@@ -21,6 +24,7 @@ import com.hoho.android.usbserial.util.SerialInputOutputManager;
 
 import org.nprlabs.nipperone.framework.DatabaseHandler;
 import org.nprlabs.nipperone.framework.NipperConstants;
+import org.prss.nprlabs.nipperonealerter.R;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -44,6 +48,7 @@ public class MyService extends Service {
     static final int NEW_ALERT = 4;
     static final int ALERT_DONE = 5;
     static final int TEST = 6;
+    static final int RECEIVER_CONNECTED = 7;
 
     private Activity activity = null;
 
@@ -81,6 +86,8 @@ public class MyService extends Service {
     private int messageCount = 0;
     private String displayFreqString = "";
 
+    private NotificationManager nm;
+
 
 
     @Override
@@ -102,6 +109,12 @@ public class MyService extends Service {
     public IBinder onBind(Intent intent) {
         Log.d(TAG, "service bound");
 
+        lookForReceiver();
+
+        return mMessenger.getBinder();
+    }
+
+    public void lookForReceiver(){
         if(sDriver == null){
             probeUSBforReceiver();
         }
@@ -124,8 +137,17 @@ public class MyService extends Service {
                 sDriver = null;
             }
         }
+    }
 
-        return mMessenger.getBinder();
+
+    private void showNotification(){
+        nm = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        CharSequence text = getText(R.string.service_new_message);
+        Notification notification = new Notification(R.drawable.nprlabslogo, text,System.currentTimeMillis());
+        PendingIntent contentIntent = PendingIntent.getActivity(this,0,new Intent(this, NipperActivity.class), 0);
+        notification.setLatestEventInfo(this, getText(R.string.service_label), text, contentIntent);
+        int notificationId = 001;
+        nm.notify(notificationId, notification);
     }
 
     @Override
@@ -556,8 +578,12 @@ public class MyService extends Service {
                     sendMessageToUI(TEST);
                     break;
                 case REMOVE_CLIENT:
-                    Log.d(TAG, "removed the service client");
+                    Log.d(TAG, "Removed the service client");
                     mClient = null;
+                    break;
+                case RECEIVER_CONNECTED:
+                    Log.d(TAG, "Looking for receiver");
+                    lookForReceiver();
                     break;
                 default:
                     super.handleMessage(msg);
@@ -565,4 +591,11 @@ public class MyService extends Service {
             }
         }
     }//end of IncomingHandler
+
+//    private class innerReceiver extends BroadcastReceiver{
+//
+//        protected void onReceive(Context context, Intent intent){
+//
+//        }
+//    }
 }
