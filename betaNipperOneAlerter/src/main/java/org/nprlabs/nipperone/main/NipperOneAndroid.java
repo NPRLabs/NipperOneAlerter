@@ -22,7 +22,6 @@ import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
@@ -229,7 +228,7 @@ public class NipperOneAndroid extends Activity {
      *  Define the broadcast receiver that handles incoming broadcast messages.
      *  Our clock tick and USB connections are monitored here.
      */
-    private final BroadcastReceiver tickReceiver = new MyReceiver();
+    //private final BroadcastReceiver tickReceiver = new MyBroadcastReceiver();
 
 //    /**
 //     * Listens for a click on the EAS Short Codes TextViews, and displays a Toast object with a
@@ -552,7 +551,7 @@ public class NipperOneAndroid extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-        if(tickReceiver != null) unregisterReceiver(tickReceiver);
+        //if(tickReceiver != null) unregisterReceiver(tickReceiver);
         Log.d(TAG,"---OnPause---");
         stopIoManager();
         if (sDriver != null) {
@@ -687,7 +686,7 @@ public class NipperOneAndroid extends Activity {
         }
         // Register the broadcast receiver to receive TIME_TICK and other broadcasts of interest.
         // We register regardless if the NipperOne is found or not.
-        registerReceiver(tickReceiver, tickReceiverIntentFilter);
+        //registerReceiver(tickReceiver, tickReceiverIntentFilter);
     }
 
     /// -----------| USB Connection Probing |---------------------------

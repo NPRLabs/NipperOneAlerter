@@ -20,6 +20,15 @@
         android:allowBackup="true" 
         android:theme="@android:style/Theme.Holo"
         android:logo="@drawable/nprlabslogo">
+
+       <!-- This is our Broadcast Receiver for the incoming intents from the Usb Manager -->
+       <receiver android:name="org.nprlabs.nipperone.main.MyBroadcastReceiver" android:enabled="true">
+           <intent-filter>
+               <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+               <action android:name="android.hardware.usb.action.USB_DEVICE_DETACHED" />
+               <action android:name="org.prss.nprlabs.nipperonealerter.USBPERMISSION" />
+           </intent-filter>
+       </receiver>
         
         <!-- Our main activity for the alerting and interface to the NipperOne receiver -->  
         <activity
@@ -32,14 +41,7 @@
 				<category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
-            </intent-filter>
-            
-            <meta-data
-                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
-                android:resource="@xml/device_filter" />
- 
+
         </activity>
         
         <!-- This is the bulk of the preference activity -->
