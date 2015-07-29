@@ -44,9 +44,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.text.format.DateFormat;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.SimpleAdapter;
 import android.widget.Toast;
 import android.widget.TextView;
 import android.content.Intent;
@@ -129,54 +132,16 @@ public class NipperActivity extends Activity {
 
     String TAG = "NipperOneAlerter";
 
-    /**
-     * Whether or not the system UI should be auto-hidden after
-     * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
-     */
-    private static final boolean AUTO_HIDE = true;
 
-    /**
-     * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after
-     * user interaction before hiding the system UI.
-     */
-    private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
-
-    /**
-     * If set, will toggle the system UI visibility upon interaction. Otherwise,
-     * will show the system UI visibility upon interaction.
-     */
-    private static final boolean TOGGLE_ON_CLICK = true;
-
-    /**
-     * The flags to pass to {@link SystemUiHider#getInstance}.
-     * SystemUiHider.FLAG_PARTIALSCREEN =  Hide/Show Title bar but display a lights-out version of the action bar.
-     *                                     Activated by touching the action bar only.
-     * SystemUiHider.FLAG_HIDE_NAVIGATION = Hide and Show Title bar and Action bar
-     *                                     Activated by touching anywhere in the activity.
-     * SystemUiHider.FLAG_FULLSCREEN = For this app, same as FLAG_HIDE_NAVIGATION.
-     */
-    private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
-
-    /**
-     * The instance of the {@link SystemUiHider} for this activity.
-     */
-    private SystemUiHider mSystemUiHider;
-
-
-    private TextView mClockText;
-
-    private Calendar mCalendar;
-    // These define the time display string for the 12 and 24 hour clock.
-    private final static String m12 = "h:mm aa";
-    private final static String m24 = "k:mm";
     private String mFormat;
 
-
+    private final MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
     private IntentFilter tickReceiverIntentFilter = null;
 
     // These indicate which fragment we want to display
     private final int FragmentMode_SETTINGS = 1;
     private final int FragmentMode_HELP = 2;
+    private final int FragmentMode_SINGLE_ALERT = 3;
 
     static String versionNipperOneAlerter = "Unknown";
 
@@ -192,7 +157,9 @@ public class NipperActivity extends Activity {
     static TextView mEvent;
     static TextView mDuration;
 
+    static TextView txtBanner;
     static Button msgArchive;
+    static ListView myListView;
 
     static Drawable drawMessageAlarm = null; //nipperRes.getDrawable(R.drawable.bordermessagealarm);
     static Drawable drawMessageNormal = null; //nipperRes.getDrawable(R.drawable.bordermessagenormal);
@@ -217,27 +184,27 @@ public class NipperActivity extends Activity {
 //            //Toast.makeText(Receiver.parentContext, msg, Toast.LENGTH_SHORT).show();
 //        }       
 //    };
-
-    /**
-     * List containing help strings for each of the EAS Short Code TextViews. 
-     * API.mEASCodesUrgency.setTag(1);
-     * API.mEASCodesCertainty.setTag(2);
-     * API.mEASCodesResponse.setTag(3);
-     * API.mEASCodesMessageType.setTag(4);
-     * API.mEASCodesEvent.setTag(5);
-     * API.mEASCodesSeverity.setTag(6);
-     * API.mEASCodesCategory.setTag(7);
-     * API.mEASCodesDuration.setTag(8)
-     */
-    private final List<String> codeHelpText = Arrays.asList(
-            " describes the 'urgency' of this message.",
-            " describes the 'certainty' of the message.",
-            " is the recommended action you should take for this event.",
-            " describes this Alert Message type.",
-            " is a short description of this event.",
-            " describes the severity of this event.",
-            " describes the category of this event.",
-            " is how long this alert is in effect.");
+//
+//    /**
+//     * List containing help strings for each of the EAS Short Code TextViews.
+//     * API.mEASCodesUrgency.setTag(1);
+//     * API.mEASCodesCertainty.setTag(2);
+//     * API.mEASCodesResponse.setTag(3);
+//     * API.mEASCodesMessageType.setTag(4);
+//     * API.mEASCodesEvent.setTag(5);
+//     * API.mEASCodesSeverity.setTag(6);
+//     * API.mEASCodesCategory.setTag(7);
+//     * API.mEASCodesDuration.setTag(8)
+//     */
+//    private final List<String> codeHelpText = Arrays.asList(
+//            " describes the 'urgency' of this message.",
+//            " describes the 'certainty' of the message.",
+//            " is the recommended action you should take for this event.",
+//            " describes this Alert Message type.",
+//            " is a short description of this event.",
+//            " describes the severity of this event.",
+//            " describes the category of this event.",
+//            " is how long this alert is in effect.");
 
 
 
@@ -261,7 +228,7 @@ public class NipperActivity extends Activity {
 
 
     //variables having to do with the Service and it's connection.
-    //mService is used to send
+    //mService is used to send messages
     private static Messenger mService = null;
     private static Messenger mMessenger = new Messenger(new MessageHandler());
     private static boolean mIsBound = false;
@@ -288,9 +255,8 @@ public class NipperActivity extends Activity {
         }
     };
 
-
-
-
+    private static boolean receiverConnection = false;
+    private ArrayAdapter<String> simpleAdpt;
 
 
     /*
@@ -307,18 +273,18 @@ public class NipperActivity extends Activity {
         //this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         //this.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN );
 
+        setContentView(R.layout.main);
+
+        //this should be the only way that the database is accessed. The constructor should never be used
+        NipperConstants.dbHandler = DatabaseHandler.getInstance(this);
+
+        //For testing purposes an alert can be manually added to the database. An alert is added everytime
 //        newMsg.setEvent("Fire Warning");
 //        newMsg.setMsgUrgency("Something");
 //        newMsg.setMsgCertainty("blah");
 //        newMsg.setMsgSeverity("very severe");
 //        newMsg.setMsgOriginator("NPR LABS");
 //        newMsg.setMsgString("This is a trial message. Created to be added to the dataBase in onCreate()");
-
-        setContentView(R.layout.main);
-
-        //this should be the only way that the database is accessed. The constructor should never be used
-        NipperConstants.dbHandler = DatabaseHandler.getInstance(this);
-
 //        dbHandler.addMessage(newMsg);
 
         //message count is set like this only once. Here. This way if you are restarting
@@ -345,8 +311,16 @@ public class NipperActivity extends Activity {
 
         mStationFreq = (TextView)findViewById(R.id.txt_station_freq);
         msgArchive = (Button)findViewById(R.id.btn_msg_archive);
+        txtBanner = (TextView)findViewById(R.id.txt_banner);
+        myListView = (ListView) findViewById(R.id.alert_list_view);
 
 
+
+        String[] values = new String[]{ "Alert 1", "Alert 2", "Alert 3"};
+        simpleAdpt = new ArrayAdapter<String>(this,
+                android.R.layout.simple_expandable_list_item_1, values);
+
+        myListView.setAdapter(simpleAdpt);
 
         try {
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
@@ -357,41 +331,21 @@ public class NipperActivity extends Activity {
         }
 
 
-        /// -----------| Begin the set up for the clock |----------------------
-        // Match the user's preference for 12 or 24 hour clock display.
-        mCalendar = Calendar.getInstance();
-        if (android.text.format.DateFormat.is24HourFormat(getBaseContext()) ){
-            mFormat = m24;}
-        else {
-            mFormat = m12;
-        }
-
-        mClockText = (TextView) findViewById(R.id.txtClock);
-
-        // Display the clock time immediately
-        mCalendar.setTimeInMillis(System.currentTimeMillis());
-        mClockText.setText(DateFormat.format(mFormat, mCalendar));
-
-        // Set the IntentFilter to listen for the top of the minute actions, 
-        // and listen for problems with the USB connection.
-        tickReceiverIntentFilter = new IntentFilter(Intent.ACTION_TIME_TICK);
+        tickReceiverIntentFilter = new IntentFilter();
         tickReceiverIntentFilter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
         tickReceiverIntentFilter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
         tickReceiverIntentFilter.addAction("org.prss.nprlabs.nipperonealerter.USBPERMISSION");
 
+        //registerReceiver(myBroadcastReceiver, tickReceiverIntentFilter);
 
-        // Register the broadcast receiver (defined above) to receive 
-        // TIME_TICK and other broadcasts of interest.
-        // This will happen in onResume()
-        //registerReceiver(tickReceiver, tickReceiverIntentFilter);
         /// -----------| END Clock setup  |------------------------------------
 
         /// -----------| System Nav Bar + Title Bar hiding and revealing |-----
         // This section deals with hiding and revealing the System Navigation (bottom of screen) and System Title bar (top of screen).
         // We use it here to automatically return to our full-screen state after the user has touched the Navigation bar. We also
         // use it to hide our app's clock when the Nav bar is visible, because the system displays a clock in the Nav Bar.
-        final View contentView =  findViewById(R.id.fraLayout);
-        final View controlsView = mClockText;
+//        final View contentView =  findViewById(R.id.fraLayout);
+//        final View controlsView = mClockText;
 
 
 
@@ -461,7 +415,6 @@ public class NipperActivity extends Activity {
         }
 
     }
-    /// -----------| Variables, functions for Nav + title hiding |------------
 
     /* onPostCreate
      * Called when activity start-up is complete. Not typically implemented
@@ -478,33 +431,7 @@ public class NipperActivity extends Activity {
         // are available.
         //delayedHide(500);
     }
-//
-//    /*
-//     * (non-Javadoc)
-//     * @see android.app.Activity#onPause()
-//     * Clean up running processes to prepare for the activity to pause
-//     * We unregister the tickReceiver, stop the serialIOManager,
-//     * and null sDriver.
-//     * Any incoming alert messages will not be seen by the app, although
-//     * the receiver will continue to monitor the station.
-//     */
-//    @Override
-//    protected void onPause() {
-//        super.onPause();
-//        if(tickReceiver != null) unregisterReceiver(tickReceiver);
-//        Log.d(TAG,"---OnPause---");
-//        stopIoManager();
-//        if (sDriver != null) {
-//            try {
-//                sDriver.close();
-//            } catch (IOException e) {
-//                Log.e (TAG,"Error trying to close sDriver in onPause().");
-//            }
-//            sDriver = null;
-//        }
-//    }
 
-    /// -----------| END API and USB support functions |-----------------------
 
     /// -----------| Action Bar Support functions |----------------------------
 
@@ -527,24 +454,29 @@ public class NipperActivity extends Activity {
         Log.d(TAG, "---onPause---");
         super.onPause();
         msgHandler.pause();
+
+        if(myBroadcastReceiver != null) unregisterReceiver(myBroadcastReceiver);
+        receiverConnection = false;
     }
 
     @Override
     public void onResume(){
         Log.d(TAG, "---onResume---");
         super.onResume();
-        //msgHandler.setActivity(getActivity());
-        msgHandler.resume(NipperActivity.this);
+        msgHandler.resume();
+
+        if (myBroadcastReceiver != null) registerReceiver(myBroadcastReceiver, tickReceiverIntentFilter);
+
         //when the receiver is re-connected the activity is paused and resumed (if the activity is
-        //already going). If not then the Broadcast receiver starts the main activity.
-        receiverConnected();
+        //already going). If not then the Broadcast receiver starts the main activity.and On Resume is still called
+        if(!receiverConnection){sendMessageToService(MyService.RECEIVER_CONNECTED);}
     }
 
     @Override
     public void onDestroy(){
         super.onDestroy();
         doUnbindService();
-
+        stopService(new Intent(this, MyService.class));
     }
 
     /*
@@ -559,10 +491,8 @@ public class NipperActivity extends Activity {
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             openSettings();
-            //API.mMessage.append("Pressed Settings\n");
             return true;
         } else if (id == R.id.action_help) {
-
             openHelp();
             return true;
         } else if (id == R.id.action_about) {
@@ -597,44 +527,6 @@ public class NipperActivity extends Activity {
         } else  return super.onOptionsItemSelected(item);
 
     }
-
-
-
-//    /**
-//     * Schedules a call to enable the scrolling on API.mMessage,
-//     * [delayMillis] milliseconds, canceling any previously scheduled calls
-//     * @param delayMillis Delay in milliseconds.
-//     */
-//    private void delayedEnableScroll(int delayMillis){
-//        mEnableScrollHandler.removeCallbacks(mEnableScrollRunnable);
-//        mEnableScrollHandler.postDelayed(mEnableScrollRunnable, delayMillis);
-//    
-//    }
-//
-//
-//    Handler mHideHandler = new Handler();
-//    Runnable mHideRunnable = new Runnable() {
-//        @Override
-//        public void run() {
-//            mSystemUiHider.hide();
-//        }
-//    };
-//
-//
-//    /**
-//     * Schedules a call to hide() in [delayMillis] milliseconds, canceling any
-//     * previously scheduled calls.
-//     * @param delayMillis Delay in milliseconds.
-//     */
-//    private void delayedHide(int delayMillis) {
-//        mHideHandler.removeCallbacks(mHideRunnable);
-//        mHideHandler.postDelayed(mHideRunnable, delayMillis);
-//    }
-
-    /// -----------| END Variables, functions for Nav + title hiding |---------
-
-
-    /// -----------| API and USB support functions |---------------------------
 
 
 
@@ -697,6 +589,14 @@ public class NipperActivity extends Activity {
         startActivity(intent);
     }
 
+    /**
+     * Helper class that calls the openHelp() method from the shortcut button
+     * @param view
+     */
+    public void openHelp(View view){
+        openHelp();
+    }
+
 
     /**
      * Handler for Action Bar item "Settings"
@@ -716,15 +616,21 @@ public class NipperActivity extends Activity {
     public void viewMostRecent(View view){
 
         messageCount = NipperConstants.dbHandler.getMessageCount();
-
         String tmpString = "";
 
         if(messageCount == 0){
-            tmpString = "There are currently no messages in the database to display.";
+            //do nothing
         }else {
+//            CustomDialog d = new CustomDialog(this);
+//            d.show();
 
-            CustomDialog d = new CustomDialog(this);
-            d.show();
+            //Display the fragment as the main content
+            Intent intent = new Intent();
+
+            // Pass the parameter to indicate we want to show the settings fragment.
+            intent.putExtra("NipperOneFragmentMode", FragmentMode_SINGLE_ALERT);
+            intent.setClass(NipperActivity.this, SetPreferenceActivity.class);
+            startActivity(intent);
         }
     }
 
@@ -822,7 +728,7 @@ public class NipperActivity extends Activity {
 
     /**
      * The UI side of this method. The other part deals with the data
-     * in the service method of the same name.
+     * in the service.class with a method of the same name.
      */
     //TODO clean up this method.
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
@@ -834,45 +740,14 @@ public class NipperActivity extends Activity {
             //mStationFreq.setBackgroundColor(nipperRes.getColor(R.color.defaultBackgroundRelStationLayout));
 
 
-            // Change the background message box color on ALARM,
-            // Return to normal otherwise.
 
-//            if (NipperConstants.isAlarm){
-//
-//                if (!NipperConstants.HaveSetAlarmScreen ) {
-////                    NipperConstants.HaveSetAlarmScreen = true;
-//
-//                    messageCount = dbHandler.getMessageCount();
-//                    myMsg = dbHandler.getMessage(messageCount);
-//
-//                    //Log.d("Message Count in UTTV", Integer.toString(messageCount));
-//
-////                    messageLayout.setVisibility(RelativeLayout.VISIBLE);
-////                    messageLayout.setBackground(NipperActivity.drawMessageAlarm);
-//
-//
-//                    //mEASEvent.setTextColor(nipperRes.getColor(R.color.defaultTextColorMessageAlarm));
-//                    //messageLayout.setBackgroundColor(nipperRes.getColor(R.color.defaultBackgroundMessageAlarm));
-//
-////                    android.text.format.Time now = new android.text.format.Time();
-////                    now.setToNow();
-////                    SimpleDateFormat formatter;
-////                    formatter = new SimpleDateFormat("MMMMM dd,yyyy hh:mm aaa");
-//                    //mMessage.append("\n\n---| ALARM Message received " + formatter.format(new Date()) + " |---\n");
-//                    //Toast.makeText(parentContext, "An Alert Transmission is starting.", Toast.LENGTH_SHORT).show();
-//
-//                    //NipperConstants.HaveSetAlarmScreen = true;
-//                }
-//            } else {
-//                // If we're in a Alarm screen mode, then we'll clear it.
-////                if (NipperConstants.HaveSetAlarmScreen) {
-////                    // Clean up the display and flush any remaining alert message text.
-////                    dbHandler.updateMessage(myMsg);
-////
-////                    clearAlarmScreen();
-////                    Toast.makeText(parentContext, "The Alert Transmission has ended.", Toast.LENGTH_SHORT).show();
-////                }
-//            }
+            if (NipperConstants.isAlarm){
+                txtBanner.setText(R.string.new_alert);
+
+            } else {
+                txtBanner.setText(R.string.no_alert);
+
+            }
 
     } // END updateReceiverStatus()
 
@@ -939,7 +814,10 @@ public class NipperActivity extends Activity {
      * after the service/app has been started.
      * Called from 'MyBroadcastReceiver' when the usb is plugged in.
      */
-    public static void receiverConnected(){sendMessageToService(MyService.RECEIVER_CONNECTED);}
+    public static void receiverConnected(){
+        Log.d("Main Activity", "Receiver was connected again! Sending Message to service!!!!!");
+        sendMessageToService(MyService.RECEIVER_CONNECTED);
+    }
 
 
     /**
@@ -950,6 +828,7 @@ public class NipperActivity extends Activity {
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @SuppressWarnings("deprecation")
     public static void receiverNotConnected() {
+
         if (NipperConstants.HaveSetAlarmScreen) {}
         //mMessage.append(messageReceiverDisconnected);
 //        mBeaconStatus.setText("");
@@ -964,6 +843,8 @@ public class NipperActivity extends Activity {
             }
         }
         mStationFreq.setText("DISCONNECTED FROM RECEIVER");
+        sendMessageToService(MyService.RECEIVER_DISCONNECTED);
+        receiverConnection = true;
     }
 
     static class MessageHandler extends PauseHandler {

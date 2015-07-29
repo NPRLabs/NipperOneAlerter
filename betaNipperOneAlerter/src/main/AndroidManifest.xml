@@ -17,6 +17,7 @@
 
         <service android:name="org.nprlabs.nipperone.main.MyService"></service>
 
+
         <!-- Our main activity for the alerting and interface to the NipperOne receiver -->  
         <activity
             android:name="org.nprlabs.nipperone.main.NipperActivity"
@@ -28,14 +29,14 @@
 				<category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
             <intent-filter>
                 <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
             </intent-filter>
-            
+
             <meta-data
                 android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
- 
         </activity>
         
         <!-- This is the bulk of the preference activity -->

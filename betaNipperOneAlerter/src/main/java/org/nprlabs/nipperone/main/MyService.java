@@ -5,7 +5,6 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.usb.UsbDevice;
@@ -22,7 +21,6 @@ import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
 import com.hoho.android.usbserial.util.SerialInputOutputManager;
 
-import org.nprlabs.nipperone.framework.DatabaseHandler;
 import org.nprlabs.nipperone.framework.NipperConstants;
 import org.prss.nprlabs.nipperonealerter.R;
 
@@ -49,6 +47,7 @@ public class MyService extends Service {
     static final int ALERT_DONE = 5;
     static final int TEST = 6;
     static final int RECEIVER_CONNECTED = 7;
+    static final int RECEIVER_DISCONNECTED = 8;
 
     private Activity activity = null;
 
@@ -89,15 +88,12 @@ public class MyService extends Service {
     private NotificationManager nm;
 
 
-
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "S:onCreate: Service Started.");
 
         NipperConstants.mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
-
-
     }
 
 
@@ -108,9 +104,7 @@ public class MyService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         Log.d(TAG, "service bound");
-
         lookForReceiver();
-
         return mMessenger.getBinder();
     }
 
@@ -142,7 +136,7 @@ public class MyService extends Service {
 
     private void showNotification(){
         nm = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-        CharSequence text = getText(R.string.service_new_message);
+        CharSequence text = getText(R.string.new_alert);
         Notification notification = new Notification(R.drawable.nprlabslogo, text,System.currentTimeMillis());
         PendingIntent contentIntent = PendingIntent.getActivity(this,0,new Intent(this, NipperActivity.class), 0);
         notification.setLatestEventInfo(this, getText(R.string.service_label), text, contentIntent);
@@ -164,7 +158,6 @@ public class MyService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
         isRunning = false;
     }
 
@@ -218,7 +211,7 @@ public class MyService extends Service {
                 case NipperConstants.RECEIVER_MODE_STATUS:
                     updateTabletTextViews(data);
                     //Log.d(TAG, "The tablet views were updated");
-                    sendMessageToUI(UPDATE_BANDSCAN);
+                    sendMessageToUI(UPDATE_TABLET_TEXT_VIEW);
 
                     break;
                 case NipperConstants.RECEIVER_MODE_TEXT:
@@ -567,6 +560,7 @@ public class MyService extends Service {
 
     private class IncomingHandler extends PauseHandler{
 
+        private String TAG = "MyService: PauseHandler";
         @Override
         public void processMessage(Message msg){
 
@@ -582,8 +576,13 @@ public class MyService extends Service {
                     mClient = null;
                     break;
                 case RECEIVER_CONNECTED:
-                    Log.d(TAG, "Looking for receiver");
+                    Log.d(TAG, "Receiver Connected, now looking for receiver");
                     lookForReceiver();
+                    break;
+                case RECEIVER_DISCONNECTED:
+                    Log.d(TAG, "receiver Disconnected!!!");
+                    stopIoManager();
+                    sDriver = null;
                     break;
                 default:
                     super.handleMessage(msg);

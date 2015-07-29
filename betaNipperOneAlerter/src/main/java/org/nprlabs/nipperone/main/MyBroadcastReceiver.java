@@ -27,43 +27,41 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-        if ( Intent.ACTION_TIME_TICK.equals(action) ) {
 
+        switch(intent.getAction()) {
+            case UsbManager.ACTION_USB_DEVICE_ATTACHED:
+                NipperActivity.receiverConnected();
+                break;
 
-        }  else if ( UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action) ) {
+            case UsbManager.ACTION_USB_DEVICE_DETACHED :
+                // Either the receiver has been rebooted or physically disconnected from the tablet.
+                // Bring this to the user's attention.
 
+                NipperActivity.receiverNotConnected();
+                break;
+            case "org.prss.nprlabs.nipperonealerter.USBPERMISSION":
+                for (final UsbDevice device : NipperConstants.mUsbManager.getDeviceList().values()) {
+                    if (device.getVendorId() == 0x1320) {
+                        Log.d(TAG, "Found Catena USB device: " + device);
+                        //mMessage.append("Found the NipperOne Radio receiver\n");
 
-        } else if ( UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action) ) {
-            // Either the receiver has been rebooted or physically disconnected from the tablet.
-            // Bring this to the user's attention.
-
-            NipperActivity.receiverNotConnected();
-
-            //TODO add the stop background service here.
-
-        } else if ( "org.prss.nprlabs.nipperonealerter.USBPERMISSION".equals(action) ) {
-            for (final UsbDevice device : NipperConstants.mUsbManager.getDeviceList().values()) {
-                if (device.getVendorId() == 0x1320) {
-                    Log.d(TAG, "Found Catena USB device: " + device);
-                    //mMessage.append("Found the NipperOne Radio receiver\n");
-
-                    if (NipperConstants.mUsbManager.hasPermission(device) ) {
-                        final List<UsbSerialDriver> drivers =
-                                UsbSerialProber.probeSingleDevice(NipperConstants.mUsbManager, device);
-                        if (drivers.isEmpty()) {
-                            Log.d(TAG, "  - No UsbSerialDriver available.");
-                            //mMessage.append("\nThe Nipper One receiver does NOT have its driver assigned.\nPlease Press the Receiver's Reset button.\n");
-                        } else {
-                            for (UsbSerialDriver driver : drivers) {
-                                Log.d(TAG, "  + " + driver);
-                                //mMessage.append("tickReceiver:The NipperOne receiver will be using the following driver:\n" + driver + "\n");
+                        if (NipperConstants.mUsbManager.hasPermission(device)) {
+                            final List<UsbSerialDriver> drivers =
+                                    UsbSerialProber.probeSingleDevice(NipperConstants.mUsbManager, device);
+                            if (drivers.isEmpty()) {
+                                Log.d(TAG, "  - No UsbSerialDriver available.");
+                                //mMessage.append("\nThe Nipper One receiver does NOT have its driver assigned.\nPlease Press the Receiver's Reset button.\n");
+                            } else {
+                                for (UsbSerialDriver driver : drivers) {
+                                    Log.d(TAG, "The NipperOne Receiver will be using this driver: " + driver);
+                                }
                             }
+                        } else {
+                            Log.d(TAG, "This is distressing:We still don't have permission to access the Catena Receiver.");
                         }
-                    } else {
-                        //mMessage.append("\nThis is distressing:\nWe still don't have permission to access the Catena Receiver.\n");
                     }
                 }
-            }
-        } //end elseif
+                break;
+        }//end of switch
     } //end onReceive()
 }

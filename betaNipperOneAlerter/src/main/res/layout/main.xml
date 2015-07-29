@@ -10,32 +10,29 @@
     tools:context=".NipperOneAndroid"
     android:weightSum="1">
 
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/menu_layout_left"
         android:layout_width="200dp"
         android:layout_height="match_parent"
         android:layout_gravity="left"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:orientation="vertical">
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/btnMsgArchive"
             android:id="@+id/btn_msg_archive"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="75dp"
-            android:onClick="viewMessageArchive"/>
+            android:onClick="viewMessageArchive" />
 
-        <Button
-            android:layout_width="wrap_content"
+        <ListView
+            android:id="@+id/alert_list_view"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/btnSettingsSC"
-            android:id="@+id/button6"
-            android:layout_marginBottom="75dp"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true" />
-    </RelativeLayout>
+            android:layout_gravity="center_horizontal" />
+
+
+    </LinearLayout>
 
    <RelativeLayout
        android:id="@+id/center_layout"
@@ -44,19 +41,11 @@
        android:layout_gravity="center_horizontal"
        android:layout_weight="2">
 
-       <TextView
-           android:id="@+id/txtClock"
-           android:layout_width="wrap_content"
-           android:layout_height="wrap_content"
-           android:text="clock"
-           android:textSize="@dimen/defaultFontSizetxtStationFreq"
-           android:layout_alignParentTop="true"
-           android:layout_alignParentRight="true" />
 
        <TextView
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"
-           android:text="No Active Alerts"
+           android:text="txt"
            android:textSize="@dimen/defaultFontSizetxtStationCall"
            android:textStyle="bold|italic"
            android:id="@+id/txt_banner"
@@ -106,7 +95,7 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Most Recent Message"
+            android:text="Most Recent Alert"
             android:id="@+id/button"
             android:layout_marginTop="75dp"
             android:layout_alignParentTop="true"
@@ -119,7 +108,8 @@
             android:id="@+id/button4"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="75dp" />
+            android:layout_marginBottom="75dp"
+            android:onClick="openHelp"/>
     </RelativeLayout>
 
 </LinearLayout>

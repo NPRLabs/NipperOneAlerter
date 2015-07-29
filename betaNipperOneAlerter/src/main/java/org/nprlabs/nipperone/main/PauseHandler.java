@@ -32,9 +32,8 @@ public abstract class PauseHandler extends Handler {
     private Activity activity;
 
     //resume the handler
-    public final synchronized void resume(Activity activity){
+    public final synchronized void resume(){
         paused = false;
-        this.activity = activity;
 
         while(messageQueueBuffer.size() > 0 ){
             final Message msg = messageQueueBuffer.elementAt(0);
@@ -48,7 +47,6 @@ public abstract class PauseHandler extends Handler {
      */
     public final synchronized void pause(){
         paused = true;
-        activity = null;
     }
 
 
@@ -71,5 +69,4 @@ public abstract class PauseHandler extends Handler {
             processMessage(msg);
         }
     }
-
 }
