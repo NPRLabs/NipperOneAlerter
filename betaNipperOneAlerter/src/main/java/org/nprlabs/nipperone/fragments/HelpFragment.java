@@ -18,10 +18,6 @@ public class HelpFragment extends Fragment {
         super.onCreate(savedInstanceState);
      // Inflate the layout for this fragment
         return inflater.inflate(R.layout.help_fragment_activity, container, false);
-        
-        
-        // Load the preferences from an XML resource
-        //addPreferencesFromResource(R.xml.preferences);
     }
     
     @Override

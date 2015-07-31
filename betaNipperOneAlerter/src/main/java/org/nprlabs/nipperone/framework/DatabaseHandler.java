@@ -131,9 +131,9 @@ public class DatabaseHandler extends SQLiteOpenHelper{
     public synchronized AlertImpl getMessage(int id){
         SQLiteDatabase db = this.getReadableDatabase();
         
-        Cursor cursor = db.query(TABLE_MESSAGES, new String[] { KEY_ID, KEY_EAS_EVENT,
-                KEY_EAS_ACTION, KEY_EAS_CERTAINTY, KEY_EAS_SEVERITY, KEY_EAS_URGENCY, KEY_EAS_CATEGORY, KEY_EVT_DURATION, KEY_ORIGIN_TIME, KEY_MSG_ORIGINATOR, KEY_MSG_TYPE, KEY_MESSAGE},
-                KEY_ID + "=?", new String[] { String.valueOf(id) }, null, null, null, null);
+        Cursor cursor = db.query(TABLE_MESSAGES, new String[]{KEY_ID, KEY_EAS_EVENT,
+                        KEY_EAS_ACTION, KEY_EAS_CERTAINTY, KEY_EAS_SEVERITY, KEY_EAS_URGENCY, KEY_EAS_CATEGORY, KEY_EVT_DURATION, KEY_ORIGIN_TIME, KEY_MSG_ORIGINATOR, KEY_MSG_TYPE, KEY_MESSAGE},
+                KEY_ID + "=?", new String[]{String.valueOf(id)}, null, null, null, null);
         if(cursor != null)
             cursor.moveToFirst();
 
@@ -158,6 +158,10 @@ public class DatabaseHandler extends SQLiteOpenHelper{
         return msg;
     }
 
+    /**
+     * Returns all of the Messages in the database.
+     * @return A list of List<AlertImpl> with the oldest Alert first
+     */
     public synchronized List<AlertImpl> getAllMessages(){
         List<AlertImpl> msgList = new ArrayList<AlertImpl>();
         //Select all query
@@ -185,6 +189,44 @@ public class DatabaseHandler extends SQLiteOpenHelper{
 
                 msgList.add(msg);
             }while(cursor.moveToNext());
+        }
+        cursor.close();
+        return msgList;
+
+    }
+
+    /**
+     * Returns all of the Messages in the database, but in reverse order or the most recent
+     * entry first
+     * @return A list of List<AlertImpl> with the most recent entry first
+     */
+    public synchronized List<AlertImpl> getAllMessagesReverse(){
+        List<AlertImpl> msgList = new ArrayList<AlertImpl>();
+        //Select all query
+        String selectQuery = "SELECT * FROM " + TABLE_MESSAGES;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        //looping through all rows and adding to list
+        if(cursor.moveToLast()){
+            do{
+                AlertImpl msg = new AlertImpl();
+                msg.setId(Integer.parseInt(cursor.getString(0)));
+                msg.setEvent(cursor.getString(1));
+                msg.setMsgAction(cursor.getString(2));
+                msg.setMsgCertainty(cursor.getString(3));
+                msg.setMsgSeverity(cursor.getString(4));
+                msg.setMsgUrgency(cursor.getString(5));
+                msg.setMsgCategory(cursor.getString(6));
+                msg.setMsgDuration(cursor.getString(7));
+                msg.setMsgOrgTime(cursor.getString(8));
+                msg.setMsgOriginator(cursor.getString(9));
+                msg.setType(cursor.getString(10));
+                msg.setMsgString(cursor.getString(11));
+
+                msgList.add(msg);
+            }while(cursor.moveToPrevious());
         }
         cursor.close();
         return msgList;

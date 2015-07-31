@@ -364,9 +364,6 @@ public class MyService extends Service {
                 NipperConstants.dbHandler.updateMessage(myMsg);
 
                 //sendMessageToUI(ALERT_DONE);
-                Toast.makeText(getApplicationContext(), "The Alert Transmission has ended.", Toast.LENGTH_SHORT).show();
-
-
 
             }else if(NipperConstants.isAlarm && !NipperConstants.HaveSetAlarmScreen){
                 Log.d(TAG, "#2");
@@ -382,8 +379,6 @@ public class MyService extends Service {
                 if( messageCount> 0 && NipperConstants.dbHandler.msgExists(messageCount)){
                     myMsg= NipperConstants.dbHandler.getMessage(messageCount);
                 }
-
-                //Toast.makeText(getApplicationContext(), "An Alert Transmission is starting.", Toast.LENGTH_SHORT).show();
 
 
             }else{

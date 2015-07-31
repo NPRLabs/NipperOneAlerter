@@ -7,6 +7,7 @@ package org.nprlabs.nipperone.main;
 // For USB access and control
 import android.content.ComponentName;
 import android.content.ServiceConnection;
+import android.database.DataSetObserver;
 import android.graphics.drawable.Drawable;
 import android.hardware.usb.UsbManager;
 
@@ -44,9 +45,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.text.format.DateFormat;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
@@ -157,9 +161,10 @@ public class NipperActivity extends Activity {
     static TextView mEvent;
     static TextView mDuration;
 
-    static TextView txtBanner;
-    static Button msgArchive;
-    static ListView myListView;
+    private static TextView txtBanner;
+    private static Button msgArchive;
+    private static ListView alertListView;
+    private static org.nprlabs.nipperone.activities.ListAdapter alertListAdapter;
 
     static Drawable drawMessageAlarm = null; //nipperRes.getDrawable(R.drawable.bordermessagealarm);
     static Drawable drawMessageNormal = null; //nipperRes.getDrawable(R.drawable.bordermessagenormal);
@@ -256,7 +261,6 @@ public class NipperActivity extends Activity {
     };
 
     private static boolean receiverConnection = false;
-    private ArrayAdapter<String> simpleAdpt;
 
 
     /*
@@ -308,19 +312,18 @@ public class NipperActivity extends Activity {
         parentContext = getApplicationContext();
         //parentActivity = this;
 
+        //init custom alert list adapter
+        alertListAdapter = new org.nprlabs.nipperone.activities.ListAdapter(this, NipperConstants.dbHandler.getAllMessagesReverse(), getResources());
+
 
         mStationFreq = (TextView)findViewById(R.id.txt_station_freq);
         msgArchive = (Button)findViewById(R.id.btn_msg_archive);
         txtBanner = (TextView)findViewById(R.id.txt_banner);
-        myListView = (ListView) findViewById(R.id.alert_list_view);
+        alertListView = (ListView) findViewById(R.id.list);
 
 
-
-        String[] values = new String[]{ "Alert 1", "Alert 2", "Alert 3"};
-        simpleAdpt = new ArrayAdapter<String>(this,
-                android.R.layout.simple_expandable_list_item_1, values);
-
-        myListView.setAdapter(simpleAdpt);
+        alertListView.setAdapter(alertListAdapter);
+        alertListView.getOnItemClickListener();
 
         try {
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
@@ -364,6 +367,12 @@ public class NipperActivity extends Activity {
 
 
     } // END onCreate()
+
+    public void onItemClick(int mPosition){
+        AlertImpl alert = (AlertImpl)alertListView.getItemAtPosition(mPosition);
+
+        Toast.makeText(this, alert.getEventString(), Toast.LENGTH_LONG).show();
+    }
 
     @Override
     public void onStart(){
@@ -627,7 +636,7 @@ public class NipperActivity extends Activity {
             //Display the fragment as the main content
             Intent intent = new Intent();
 
-            // Pass the parameter to indicate we want to show the settings fragment.
+            //Pass the parameter to indicate we want to show the settings fragment.
             intent.putExtra("NipperOneFragmentMode", FragmentMode_SINGLE_ALERT);
             intent.setClass(NipperActivity.this, SetPreferenceActivity.class);
             startActivity(intent);
@@ -739,12 +748,16 @@ public class NipperActivity extends Activity {
         // we indicate we're looking for our station.
             //mStationFreq.setBackgroundColor(nipperRes.getColor(R.color.defaultBackgroundRelStationLayout));
 
-
-
             if (NipperConstants.isAlarm){
                 txtBanner.setText(R.string.new_alert);
 
             } else {
+                if(NipperConstants.HaveSetAlarmScreen){
+
+                    alertListAdapter.updateListAdapter();
+                    alertListView.setAdapter(alertListAdapter);
+                    alertListView.refreshDrawableState();
+                }
                 txtBanner.setText(R.string.no_alert);
 
             }

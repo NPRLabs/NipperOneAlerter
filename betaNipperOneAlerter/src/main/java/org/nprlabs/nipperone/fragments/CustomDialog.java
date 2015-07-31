@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import org.nprlabs.nipperone.framework.DatabaseHandler;
+import org.nprlabs.nipperone.framework.NipperConstants;
 import org.nprlabs.nipperone.main.AlertImpl;
 import org.prss.nprlabs.nipperonealerter.R;
 
@@ -25,7 +26,6 @@ public class CustomDialog extends Dialog implements View.OnClickListener {
     public Button ok, fullAlert, alertHelp;
     public TextView category, certainty, severity, urgency, action, banner;
 
-    private DatabaseHandler dbHandler;
 
     public CustomDialog(Activity a){
         super(a);
@@ -38,7 +38,6 @@ public class CustomDialog extends Dialog implements View.OnClickListener {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.custom_dialog);
 
-        dbHandler = DatabaseHandler.getInstance(getContext());
 
         ok = (Button) findViewById(R.id.btn_ok);
         fullAlert = (Button) findViewById(R.id.btn_view_full_alert);
@@ -65,13 +64,13 @@ public class CustomDialog extends Dialog implements View.OnClickListener {
     @Override
     public void onClick(View v){
 
-
-
     }
 
     private void displayMessage(){
 
-        AlertImpl msg = dbHandler.getMessage(dbHandler.getMessageCount());
+        int count = NipperConstants.dbHandler.getMessageCount();
+
+        AlertImpl msg = NipperConstants.dbHandler.getMessage(count);
         category.setText(msg.getMsgCategory());
         certainty.setText(msg.getMsgCertainty());
         severity.setText(msg.getMsgSeverity());
