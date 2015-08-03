@@ -22,13 +22,14 @@ public class FullAlertFragment extends Fragment{
     private String TAG = "Full Alert Fragment";
     public Button ok, fullAlert, alertHelp;
     public TextView category, certainty, severity, urgency, action, banner;
-
+    private int alertId;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
 
         super.onCreateView(inflater, container, savedInstanceState);
+        alertId = getArguments().getInt("AlertId");
 
         return inflater.inflate(R.layout.custom_dialog, container, false);
     }
@@ -46,7 +47,7 @@ public class FullAlertFragment extends Fragment{
         urgency = (TextView) getView().findViewById(R.id.txt_urgency);
         action = (TextView) getView().findViewById(R.id.txt_action);
         banner = (TextView) getView().findViewById(R.id.txt_banner);
-        displayMessage();
+        displayMessage(alertId);
     }
 
     @Override
@@ -55,11 +56,9 @@ public class FullAlertFragment extends Fragment{
         Log.d(TAG, "------ onPause ------");
     }
 
-    private void displayMessage(){
+    public void displayMessage(int alertId){
 
-        int count = NipperConstants.dbHandler.getMessageCount();
-
-        AlertImpl msg = NipperConstants.dbHandler.getMessage(count);
+        AlertImpl msg = NipperConstants.dbHandler.getMessage(alertId);
         category.setText(msg.getMsgCategory());
         certainty.setText(msg.getMsgCertainty());
         severity.setText(msg.getMsgSeverity());

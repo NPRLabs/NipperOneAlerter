@@ -23,7 +23,7 @@ import java.util.List;
  * A custom adapter for displaying the alert archive.
  * Created by kbrudos on 7/30/2015.
  */
-public class ListAdapter extends BaseAdapter implements View.OnClickListener{
+public class ListAdapter extends BaseAdapter {
 
     private String TAG = "ListAdapter";
     private Activity activity;
@@ -77,25 +77,26 @@ public class ListAdapter extends BaseAdapter implements View.OnClickListener{
         mData = NipperConstants.dbHandler.getAllMessagesReverse();
     }
 
-
-    @Override
-    public void onClick(View view){
-        Log.d(TAG, "====== List item clicked ======");
-    }
-
-    private class OnItemClickListener implements View.OnClickListener{
-        int mPosition;
-
-        OnItemClickListener(int position){
-            mPosition = position;
-        }
-
-        @Override
-        public void onClick(View view){
-
-            NipperActivity nA = (NipperActivity) activity;
-            nA.onItemClick(mPosition);
-        }
-    }
+//
+//    @Override
+//    public void onClick(View view){
+//        super.onClick();
+//        Log.d(TAG, "====== List item clicked ======");
+//    }
+//
+//    private class OnItemClickListener implements View.OnClickListener{
+//        int mPosition;
+//
+//        OnItemClickListener(int position){
+//            mPosition = position;
+//        }
+//
+//        @Override
+//        public void onClick(View view){
+//
+//            NipperActivity nA = (NipperActivity) activity;
+//            nA.onItemClick(mPosition);
+//        }
+//    }
 
 }

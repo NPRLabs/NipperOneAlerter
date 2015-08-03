@@ -67,6 +67,9 @@ public class SetPreferenceActivity extends PreferenceActivity {
                 break;
             case FragmentMode_SINGLE_ALERT:
                 FullAlertFragment mFullAlertFrag = new FullAlertFragment();
+                Bundle args = new Bundle();
+                args.putInt("AlertId", getIntent().getExtras().getInt("AlertId"));
+                mFullAlertFrag.setArguments(args);
                 mFragmentTransaction.replace(android.R.id.content, mFullAlertFrag);
                 break;
             default:

@@ -6,16 +6,18 @@
     <TextView
         android:id="@+id/firstLine"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:textSize="16sp"/>
+        android:textSize="16sp"
+        android:text="This is the first line"/>
     <TextView
         android:id="@+id/secondLine"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_alignParentLeft="true"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:text="this is the 2nd line"
         android:layout_below="@+id/firstLine"
-        android:textSize="12sp"/>
+        android:layout_alignParentLeft="true" />
 
 </RelativeLayout>

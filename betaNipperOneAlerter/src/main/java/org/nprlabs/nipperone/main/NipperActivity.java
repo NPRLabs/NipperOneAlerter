@@ -313,17 +313,51 @@ public class NipperActivity extends Activity {
         //parentActivity = this;
 
         //init custom alert list adapter
-        alertListAdapter = new org.nprlabs.nipperone.activities.ListAdapter(this, NipperConstants.dbHandler.getAllMessagesReverse(), getResources());
+        alertListAdapter = new org.nprlabs.nipperone.activities.ListAdapter(this, NipperConstants.dbHandler.getAllMessagesReverse(), this.getResources());
 
 
         mStationFreq = (TextView)findViewById(R.id.txt_station_freq);
         msgArchive = (Button)findViewById(R.id.btn_msg_archive);
         txtBanner = (TextView)findViewById(R.id.txt_banner);
-        alertListView = (ListView) findViewById(R.id.list);
+        alertListView = (ListView) findViewById(R.id.list_view);
 
 
         alertListView.setAdapter(alertListAdapter);
-        alertListView.getOnItemClickListener();
+
+        alertListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                final AlertImpl alert = (AlertImpl)parent.getItemAtPosition(position);
+                String alertString = alert.ShortMsgtoString();
+
+                Toast.makeText(getBaseContext(), "Item " + alert.getEventString() + " clicked.", Toast.LENGTH_LONG).show();
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(NipperActivity.this);
+                builder.setTitle(alert.getEventString());
+                // Set our icon for the title.
+                builder.setIcon(R.drawable.nprlabslogo);
+                // Set our copyright and info message.
+                builder.setMessage(alertString);
+                // Add the OK button. Dialog box will disappear when OK is touched.
+                builder.setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User clicked OK button, do nothing extra here. dialog box will close
+                    }
+                });
+                builder.setNeutralButton(R.string.btn_view_full_alert, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //have this alert open up in the extensive alert view/fragment
+                        viewAlertById(alert.getId());
+                    }
+                });
+
+                // Create the AlertDialog
+                AlertDialog d = builder.create();
+                d.show();
+
+            }
+        });//end of ListView onItemClickListener
 
         try {
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
@@ -368,11 +402,6 @@ public class NipperActivity extends Activity {
 
     } // END onCreate()
 
-    public void onItemClick(int mPosition){
-        AlertImpl alert = (AlertImpl)alertListView.getItemAtPosition(mPosition);
-
-        Toast.makeText(this, alert.getEventString(), Toast.LENGTH_LONG).show();
-    }
 
     @Override
     public void onStart(){
@@ -634,15 +663,35 @@ public class NipperActivity extends Activity {
 //            d.show();
 
             //Display the fragment as the main content
+//            Intent intent = new Intent();
+//
+//            //Pass the parameter to indicate we want to show the settings fragment.
+//            intent.putExtra("NipperOneFragmentMode", FragmentMode_SINGLE_ALERT);
+//            intent.setClass(NipperActivity.this, SetPreferenceActivity.class);
+//            startActivity(intent);
+
+            viewAlertById(messageCount);
+        }
+    }
+
+    public void viewAlertById(int alertId){
+
+        messageCount = NipperConstants.dbHandler.getMessageCount();
+        String tmpString = "";
+
+        if(messageCount == 0){
+            //do nothing
+        }else {
+            //Display the fragment as the main content
             Intent intent = new Intent();
 
             //Pass the parameter to indicate we want to show the settings fragment.
             intent.putExtra("NipperOneFragmentMode", FragmentMode_SINGLE_ALERT);
+            intent.putExtra("AlertIdNumber", alertId);
             intent.setClass(NipperActivity.this, SetPreferenceActivity.class);
             startActivity(intent);
         }
     }
-
 
     public void viewMessageArchive(View view){
 //        Toast toast = Toast.makeText(getApplicationContext(), "Clicked to view the current Message!", Toast.LENGTH_SHORT );
@@ -671,6 +720,8 @@ public class NipperActivity extends Activity {
                 // User clicked OK button
             }
         });
+
+
         // Create the AlertDialog
         AlertDialog dialog = builder.create();
         dialog.show();

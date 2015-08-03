@@ -144,16 +144,21 @@
     <string name="wswString">"Winter Storm Watch"</string>
 
 
+    <!-- Strings That are displayed on the main activity page -->
     <string name="nprlabs">NPRLabs</string>
     <string name="btnMsgArchive">Message Archive</string>
     <string name="btn_recent_alert">Most Recent Alert</string>
     <string name="btn_help_shortcut">Help Shortcut</string>
-
     <string name="new_alert">Incoming Alert</string>
     <string name="no_alert">No Incoming Alerts</string>
 
+    <!-- Strings for the notification from the Service of a new Alert-->
     <string name="service_label">Nipper One</string>
-
     <string name="unviewed_alert">New Alert</string>
+    <string name="list_title">Message Archive</string>
+
+    <!-- Strings for the Message Archive dialog buttons-->
+    <string name="btn_ok">OK</string>
+    <string name="btn_view_full_alert">View Full Alert</string>
 
 </resources>
