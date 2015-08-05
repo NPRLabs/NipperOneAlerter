@@ -65,20 +65,14 @@
                android:id="@+id/lbl_receiver_status"
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
-               android:text="Receiver Status"
+               android:text="@string/receiver_lbl"
                android:textSize="@dimen/defaultFontSizetxtCurrentSel" />
 
-           <TextView
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:id="@+id/txt_connection_status"
-               android:text="Connection Status"
-               android:textSize="@dimen/defaultFontSizetxtMessage" />
            <TextView
                android:id="@+id/txt_station_freq"
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
-               android:text="Station Frequency"
+               android:text="@string/station_frequency"
                android:textSize="@dimen/defaultFontSizetxtStationFreq" />
 
        </LinearLayout>

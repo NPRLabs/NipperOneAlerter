@@ -1,4 +1,4 @@
-package org.nprlabs.nipperone.activities;
+package org.nprlabs.nipperone.framework;
 
 import android.app.Activity;
 import android.content.Context;
@@ -30,13 +30,8 @@ public class ListAdapter extends BaseAdapter {
     private List<AlertImpl> list;
     private Resources resources;
 
-    private List<AlertImpl> mData = NipperConstants.dbHandler.getAllMessages();
+    private List<AlertImpl> mData = NipperConstants.dbHandler.getAllMessagesReverse();
 
-    public ListAdapter(Activity a, List<AlertImpl> l, Resources r ){
-        this.activity = a;
-        this.list = l;
-        this.resources = r;
-    }
 
     @Override
     public int getCount(){
@@ -46,7 +41,7 @@ public class ListAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position){
-        return position;
+        return mData.get(position).getId();
     }
 
 
@@ -69,7 +64,7 @@ public class ListAdapter extends BaseAdapter {
 
         AlertImpl alert = mData.get(position);
         firstLine.setText(alert.getEventString());
-        secondLine.setText(alert.getMsgAction());
+        secondLine.setText(alert.getMsgOrgTime());
 
         return arg1;
     }
@@ -77,26 +72,6 @@ public class ListAdapter extends BaseAdapter {
         mData = NipperConstants.dbHandler.getAllMessagesReverse();
     }
 
-//
-//    @Override
-//    public void onClick(View view){
-//        super.onClick();
-//        Log.d(TAG, "====== List item clicked ======");
-//    }
-//
-//    private class OnItemClickListener implements View.OnClickListener{
-//        int mPosition;
-//
-//        OnItemClickListener(int position){
-//            mPosition = position;
-//        }
-//
-//        @Override
-//        public void onClick(View view){
-//
-//            NipperActivity nA = (NipperActivity) activity;
-//            nA.onItemClick(mPosition);
-//        }
-//    }
+
 
 }

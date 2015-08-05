@@ -7,16 +7,14 @@ package org.nprlabs.nipperone.main;
 // For USB access and control
 import android.content.ComponentName;
 import android.content.ServiceConnection;
-import android.database.DataSetObserver;
+import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.hardware.usb.UsbManager;
 
-import org.nprlabs.nipperone.fragments.CustomDialog;
 import org.nprlabs.nipperone.framework.DatabaseHandler;
 import org.prss.nprlabs.nipperonealerter.R;
 import org.nprlabs.nipperone.activities.SetPreferenceActivity;
 import org.nprlabs.nipperone.framework.NipperConstants;
-import org.nprlabs.nipperonealerter.util.SystemUiHider;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -34,26 +32,19 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
 // For clock display
-import java.util.Calendar;
 import java.util.List;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.text.format.DateFormat;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
+import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 import android.widget.TextView;
 import android.content.Intent;
@@ -162,54 +153,21 @@ public class NipperActivity extends Activity {
     static TextView mDuration;
 
     private static TextView txtBanner;
+    private static TextView alertMessage;
+
+
     private static Button msgArchive;
+    private static Button viewMoreButton;
+    private static Button viewLessButton;
+
     private static ListView alertListView;
-    private static org.nprlabs.nipperone.activities.ListAdapter alertListAdapter;
+    private static org.nprlabs.nipperone.framework.ListAdapter alertListAdapter;
 
     static Drawable drawMessageAlarm = null; //nipperRes.getDrawable(R.drawable.bordermessagealarm);
     static Drawable drawMessageNormal = null; //nipperRes.getDrawable(R.drawable.bordermessagenormal);
     static Drawable drawStationFreqSlow = null;
     static Drawable drawStationFreqQuick = null;
     static Drawable drawStationFreqFoundStation = null;
-
-
-
-//    /**
-//     * Listens for a click on the EAS Short Codes TextViews, and displays a Toast object with a
-//     * description of the clicked EAS Short Code.
-//     */
-//    private final OnClickListener EASCodesClickListener = new OnClickListener() {
-//        @Override
-//        public void onClick(View v){
-//            String msg = "";
-//            int m = (Integer) v.getTag();
-//            TextView tv = (TextView) v; 
-//            if (tv.getText().length() > 0) msg = "\"" + tv.getText() + "\"" ;
-//            msg = msg + codeHelpText.get(m);
-//            //Toast.makeText(Receiver.parentContext, msg, Toast.LENGTH_SHORT).show();
-//        }       
-//    };
-//
-//    /**
-//     * List containing help strings for each of the EAS Short Code TextViews.
-//     * API.mEASCodesUrgency.setTag(1);
-//     * API.mEASCodesCertainty.setTag(2);
-//     * API.mEASCodesResponse.setTag(3);
-//     * API.mEASCodesMessageType.setTag(4);
-//     * API.mEASCodesEvent.setTag(5);
-//     * API.mEASCodesSeverity.setTag(6);
-//     * API.mEASCodesCategory.setTag(7);
-//     * API.mEASCodesDuration.setTag(8)
-//     */
-//    private final List<String> codeHelpText = Arrays.asList(
-//            " describes the 'urgency' of this message.",
-//            " describes the 'certainty' of the message.",
-//            " is the recommended action you should take for this event.",
-//            " describes this Alert Message type.",
-//            " is a short description of this event.",
-//            " describes the severity of this event.",
-//            " describes the category of this event.",
-//            " is how long this alert is in effect.");
 
 
 
@@ -238,6 +196,7 @@ public class NipperActivity extends Activity {
     private static Messenger mMessenger = new Messenger(new MessageHandler());
     private static boolean mIsBound = false;
     private  MessageHandler msgHandler = new MessageHandler();
+    private Cursor dbCursor = null;
 
     public ServiceConnection mConnection = new ServiceConnection() {
         @Override
@@ -305,22 +264,30 @@ public class NipperActivity extends Activity {
         // and other attributes. REQUIRED by API.initializeAPI();
         nipperRes = getResources();
 
-        // Initialize the API class.
+        // Initialize the receiver class.
         NipperConstants.myReceiver.initializeReceiver();
 
         // Share the activity and context for Toast and the preferences activity
         parentContext = getApplicationContext();
         //parentActivity = this;
 
-        //init custom alert list adapter
-        alertListAdapter = new org.nprlabs.nipperone.activities.ListAdapter(this, NipperConstants.dbHandler.getAllMessagesReverse(), this.getResources());
 
 
         mStationFreq = (TextView)findViewById(R.id.txt_station_freq);
-        msgArchive = (Button)findViewById(R.id.btn_msg_archive);
         txtBanner = (TextView)findViewById(R.id.txt_banner);
+        alertMessage = (TextView)findViewById(R.id.alert_message_full);
+
+        msgArchive = (Button)findViewById(R.id.btn_msg_archive);
+        viewMoreButton = (Button)findViewById(R.id.btn_view_more);
+        viewLessButton = (Button)findViewById(R.id.btn_view_less);
+
         alertListView = (ListView) findViewById(R.id.list_view);
 
+
+        dbCursor = NipperConstants.dbHandler.getReadableDatabase().rawQuery("SELECT * FROM TABLE_MESSAGES", null);
+
+        //init custom alert list adapter and view
+        alertListAdapter = new org.nprlabs.nipperone.framework.ListAdapter();
 
         alertListView.setAdapter(alertListAdapter);
 
@@ -349,6 +316,7 @@ public class NipperActivity extends Activity {
                     public void onClick(DialogInterface dialog, int which) {
                         //have this alert open up in the extensive alert view/fragment
                         viewAlertById(alert.getId());
+//                        openHelp();
                     }
                 });
 
@@ -659,17 +627,15 @@ public class NipperActivity extends Activity {
         if(messageCount == 0){
             //do nothing
         }else {
-//            CustomDialog d = new CustomDialog(this);
-//            d.show();
 
-            //Display the fragment as the main content
+
+//            //Display the fragment as the main content
 //            Intent intent = new Intent();
 //
 //            //Pass the parameter to indicate we want to show the settings fragment.
 //            intent.putExtra("NipperOneFragmentMode", FragmentMode_SINGLE_ALERT);
 //            intent.setClass(NipperActivity.this, SetPreferenceActivity.class);
 //            startActivity(intent);
-
             viewAlertById(messageCount);
         }
     }
@@ -687,7 +653,7 @@ public class NipperActivity extends Activity {
 
             //Pass the parameter to indicate we want to show the settings fragment.
             intent.putExtra("NipperOneFragmentMode", FragmentMode_SINGLE_ALERT);
-            intent.putExtra("AlertIdNumber", alertId);
+            intent.putExtra("AlertId", alertId);
             intent.setClass(NipperActivity.this, SetPreferenceActivity.class);
             startActivity(intent);
         }
@@ -801,14 +767,9 @@ public class NipperActivity extends Activity {
 
             if (NipperConstants.isAlarm){
                 txtBanner.setText(R.string.new_alert);
+                alertListAdapter.notifyDataSetChanged();
 
             } else {
-                if(NipperConstants.HaveSetAlarmScreen){
-
-                    alertListAdapter.updateListAdapter();
-                    alertListView.setAdapter(alertListAdapter);
-                    alertListView.refreshDrawableState();
-                }
                 txtBanner.setText(R.string.no_alert);
 
             }
@@ -860,7 +821,6 @@ public class NipperActivity extends Activity {
     private static void clearAlarmScreen() {
 
         resetAlertStructure();
-        NipperConstants.HaveSetAlarmScreen = false;
     }
 
     /**
@@ -935,6 +895,7 @@ public class NipperActivity extends Activity {
                         mStationFreq.setText("Searching");
                         break;
                     case MyService.ALERT_DONE:
+                        Log.d("UPDATE TABLE VIEW", "Called the notify dataset changed" );
                         clearAlarmScreen();
                         break;
                     default:

@@ -151,6 +151,8 @@
     <string name="btn_help_shortcut">Help Shortcut</string>
     <string name="new_alert">Incoming Alert</string>
     <string name="no_alert">No Incoming Alerts</string>
+    <string name="receiver_lbl">Radio Station</string>
+    <string name="station_frequency">Station Frequency</string>
 
     <!-- Strings for the notification from the Service of a new Alert-->
     <string name="service_label">Nipper One</string>
@@ -159,6 +161,8 @@
 
     <!-- Strings for the Message Archive dialog buttons-->
     <string name="btn_ok">OK</string>
-    <string name="btn_view_full_alert">View Full Alert</string>
+    <string name="btn_view_full_alert">View Alert Message</string>
+    <string name="btn_view_more">View More</string>
+    <string name="btn_view_less">View Less</string>
 
 </resources>

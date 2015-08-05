@@ -363,7 +363,7 @@ public class MyService extends Service {
                 // Clean up the display and flush any remaining alert message text.
                 NipperConstants.dbHandler.updateMessage(myMsg);
 
-                //sendMessageToUI(ALERT_DONE);
+                sendMessageToUI(ALERT_DONE);
 
             }else if(NipperConstants.isAlarm && !NipperConstants.HaveSetAlarmScreen){
                 Log.d(TAG, "#2");

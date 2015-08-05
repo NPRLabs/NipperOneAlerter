@@ -50,7 +50,7 @@ public class DatabaseHandler extends SQLiteOpenHelper{
 
     /**
      * This method is the classes "constructor". This is to be the only way to get the one and only
-     * instance of the database.
+     * instance of the database. Makes sure that all variables reference the same database.
      *
      * @param context The applications context
      * @return The current/existing instance of the database. If it doesn't exist one is created which
@@ -116,7 +116,7 @@ public class DatabaseHandler extends SQLiteOpenHelper{
         values.put(KEY_MESSAGE, msg.getMsgString());
 
 
-        System.out.println("Values to be added: event: " + msg.getEventString() + "Action: " + msg.getMsgAction());
+        //System.out.println("Values to be added: event: " + msg.getEventString() + "Action: " + msg.getMsgAction());
         
         //inserting row
         db.insert(TABLE_MESSAGES, null, values);

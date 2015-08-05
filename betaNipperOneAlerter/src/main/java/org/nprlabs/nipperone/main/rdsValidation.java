@@ -79,7 +79,7 @@ public final class rdsValidation {
      */
     public String getMessageString(){
        String msg = new String(dataActive);
-        Log.d("DATA ACTIVE STRING", msg);
+        //Log.d("DATA ACTIVE STRING", msg);
         return msg;
     }
     /**
