@@ -11,7 +11,9 @@ import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.hardware.usb.UsbManager;
 
+import org.nprlabs.nipperone.framework.Alert;
 import org.nprlabs.nipperone.framework.DatabaseHandler;
+import org.nprlabs.nipperone.framework.ListAdapter;
 import org.prss.nprlabs.nipperonealerter.R;
 import org.nprlabs.nipperone.activities.SetPreferenceActivity;
 import org.nprlabs.nipperone.framework.NipperConstants;
@@ -33,12 +35,14 @@ import android.view.MenuItem;
 import android.view.View;
 
 // For clock display
+import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -161,7 +165,7 @@ public class NipperActivity extends Activity {
     private static Button viewLessButton;
 
     private static ListView alertListView;
-    private static org.nprlabs.nipperone.framework.ListAdapter alertListAdapter;
+    private static ArrayAdapter alertListAdapter;
 
     static Drawable drawMessageAlarm = null; //nipperRes.getDrawable(R.drawable.bordermessagealarm);
     static Drawable drawMessageNormal = null; //nipperRes.getDrawable(R.drawable.bordermessagenormal);
@@ -281,15 +285,15 @@ public class NipperActivity extends Activity {
         viewMoreButton = (Button)findViewById(R.id.btn_view_more);
         viewLessButton = (Button)findViewById(R.id.btn_view_less);
 
-        alertListView = (ListView) findViewById(R.id.list_view);
+        alertListView = (ListView) findViewById(R.id.list);
 
 
-        dbCursor = NipperConstants.dbHandler.getReadableDatabase().rawQuery("SELECT * FROM TABLE_MESSAGES", null);
-
+        ArrayList<AlertImpl> arrayList = new ArrayList<>();
         //init custom alert list adapter and view
-        alertListAdapter = new org.nprlabs.nipperone.framework.ListAdapter();
+        alertListAdapter = new ListAdapter(getApplicationContext(), arrayList);
 
         alertListView.setAdapter(alertListAdapter);
+        alertListAdapter.addAll(NipperConstants.dbHandler.getAllMessagesReverse());
 
         alertListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -767,6 +771,8 @@ public class NipperActivity extends Activity {
 
             if (NipperConstants.isAlarm){
                 txtBanner.setText(R.string.new_alert);
+                alertListAdapter.clear();
+                alertListAdapter.addAll(NipperConstants.dbHandler.getAllMessagesReverse());
                 alertListAdapter.notifyDataSetChanged();
 
             } else {
