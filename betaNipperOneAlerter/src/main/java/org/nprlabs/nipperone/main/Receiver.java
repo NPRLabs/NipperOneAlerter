@@ -897,7 +897,7 @@ public class Receiver {
            
            
            // DEBUG dump the contents of both arrays so we can make sure the receiver has changed its configuration.
-           /* 
+
            
            for (n=0; n < 20; n++) {
                Log.d("configValue[]",String.format("%d  %d   0x%X", n, configValue[n], configValue[n]));               
@@ -907,7 +907,7 @@ public class Receiver {
                Log.d("mydata[]",String.format("%d  %d   0x%X", n, poop,poop)); 
            }
            
-           */
+
                
            //Log.d("-----| Configuration block |-----",String.format("Message Size: %d, Configuration Block Size: %d bytes (%d bytes).",mydata[0],configValue[1],mydata[9]));
            

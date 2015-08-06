@@ -48,6 +48,7 @@ public class MyService extends Service {
     static final int TEST = 6;
     static final int RECEIVER_CONNECTED = 7;
     static final int RECEIVER_DISCONNECTED = 8;
+    static final int UPDATE_FIPS = 9;
 
     private Activity activity = null;
 
@@ -252,7 +253,7 @@ public class MyService extends Service {
                     //Log.d("versionNipperOneReceiver", versionNipperOneReceiver);
                     break;
                 case NipperConstants.RECEIVER_MODE_CONFIGURATION:
-                    NipperConstants.myReceiver.receiveReceiverConfiguration(data, this);
+                    NipperConstants.myReceiver.receiveReceiverConfiguration(data, getApplicationContext());
                     break;
                 case NipperConstants.RECEIVER_MODE_STOREDMESSAGES:
                     break;
@@ -579,17 +580,14 @@ public class MyService extends Service {
                     stopIoManager();
                     sDriver = null;
                     break;
+                case UPDATE_FIPS:
+                    Log.d(TAG, "Updating the FIPS code to: " + msg.getData().getString("key_reqFIPS"));
+                    NipperConstants.myReceiver.writeReceiverConfigurationFIPS(sDriver, msg.getData().getString("key_reqFIPS"));
+                    break;
                 default:
                     super.handleMessage(msg);
                     break;
             }
         }
     }//end of IncomingHandler
-
-//    private class innerReceiver extends BroadcastReceiver{
-//
-//        protected void onReceive(Context context, Intent intent){
-//
-//        }
-//    }
 }

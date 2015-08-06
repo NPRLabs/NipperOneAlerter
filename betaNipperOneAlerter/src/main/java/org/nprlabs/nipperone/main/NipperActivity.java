@@ -410,18 +410,42 @@ public class NipperActivity extends Activity {
 
 
     private static void sendMessageToService(int valueToSend){
-        if(mIsBound){
-            if(mService != null){
-                try{
-                    Message msg = Message.obtain(null, valueToSend);
-                    msg.replyTo = mMessenger;
-                    mService.send(msg);
-                    Log.d("SEND_MESSAGE_TO_SERVICE", "msg was sent to the service!");
-                }catch (RemoteException e){
+
+        switch(valueToSend){
+
+            case MyService.SET_CLIENT:
+
+                if(mIsBound){
+                    if(mService != null){
+                        try{
+                            Message msg = Message.obtain(null, valueToSend);
+                            msg.replyTo = mMessenger;
+                            mService.send(msg);
+                            Log.d("SEND_MESSAGE_TO_SERVICE", "msg was sent to the service!");
+                        }catch (RemoteException e){
+                        }
+                    }else{
+                        Log.d("NipperActivity", "mService is null, no message sent.");
+                    }
                 }
-            }else{
-                Log.d("NipperActivity", "mService is null, no message sent.");
-            }
+                break;
+
+            case MyService.UPDATE_FIPS:
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(parentContext);
+                String reqFIPS = prefs.getString("key_reqFIPS", null);
+
+                Message msg = new Message();
+                msg.what = valueToSend;
+
+                Bundle msgBundle = new Bundle();
+                msgBundle.putString("key_reqFIPS", reqFIPS);
+
+                msg.setData(msgBundle);
+                try {
+                    mService.send(msg);
+                }
+                catch(RemoteException e){}
+                break;
         }
 
     }
@@ -473,13 +497,15 @@ public class NipperActivity extends Activity {
     public void onResume(){
         Log.d(TAG, "---onResume---");
         super.onResume();
-        msgHandler.resume();
 
         if (myBroadcastReceiver != null) registerReceiver(myBroadcastReceiver, tickReceiverIntentFilter);
 
         //when the receiver is re-connected the activity is paused and resumed (if the activity is
         //already going). If not then the Broadcast receiver starts the main activity.and On Resume is still called
         if(!receiverConnection){sendMessageToService(MyService.RECEIVER_CONNECTED);}
+
+        msgHandler.resume();
+        if(compareFIPS())updateReceiverFIPS();
     }
 
     @Override
@@ -745,7 +771,7 @@ public class NipperActivity extends Activity {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String reqFIPS = prefs.getString("key_reqFIPS", null);
         if (reqFIPS != null) {
-//            NipperConstants.myReceiver.writeReceiverConfigurationFIPS(NipperConstants.sDriver, reqFIPS);
+            sendMessageToService(MyService.UPDATE_FIPS);
 
             // If we have descriptive text about the location, show it.
             // Else just show the user the new FIPS code.

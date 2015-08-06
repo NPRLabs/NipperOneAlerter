@@ -12,6 +12,10 @@ import org.nprlabs.nipperone.main.AlertImpl;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * This is the Helper class for the SQLite database.
+ */
 public class DatabaseHandler extends SQLiteOpenHelper{
 
     private String TAG = "Database Handler";
