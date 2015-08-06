@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.util.Log;
 
+import org.nprlabs.nipperone.fragments.FullAlertFragment;
 import org.nprlabs.nipperone.fragments.HelpFragment;
 import org.nprlabs.nipperone.fragments.PrefsFragment;
 
@@ -29,8 +30,8 @@ public class SetPreferenceActivity extends PreferenceActivity {
     private final int FragmentMode_DEFAULT = 0;
     private final int FragmentMode_SETTINGS = 1;
     private final int FragmentMode_HELP = 2;
-    private final int FragmentMode_MOREINFORMATION = 3;
-    private final int FragmentMode_CURRENTMESSAGE = 4; 
+    private final int FragmentMode_SINGLE_ALERT = 3;
+    private final int FragmentMode_MOREINFORMATION = 4;
 
     
 	/*
@@ -64,9 +65,17 @@ public class SetPreferenceActivity extends PreferenceActivity {
                 PrefsFragment mPrefsFragment = new PrefsFragment();
                 mFragmentTransaction.replace(android.R.id.content, mPrefsFragment);
                 break;
+            case FragmentMode_SINGLE_ALERT:
+                FullAlertFragment mFullAlertFrag = new FullAlertFragment();
+                Bundle args = new Bundle();
+                args.putInt("AlertId", getIntent().getExtras().getInt("AlertId"));
+                mFullAlertFrag.setArguments(args);
+                mFragmentTransaction.replace(android.R.id.content, mFullAlertFrag);
+                break;
             default:
-//                mPrefsFragment = new PrefsFragment();
-//                mFragmentTransaction.replace(android.R.id.content, mPrefsFragment);
+                mPrefsFragment = new PrefsFragment();
+                mFragmentTransaction.replace(android.R.id.content, mPrefsFragment);
+                break;
         }
         mFragmentTransaction.commit();
  	}

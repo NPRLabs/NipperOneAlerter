@@ -1,6 +1,6 @@
 package org.nprlabs.nipperone.framework;
 
-public interface Message {
+public interface Alert {
 
 
     void Message();

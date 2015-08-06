@@ -1,18 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="org.prss.nprlabs.nipperonealerter"
     android:versionCode="1"
-    android:versionName="0.9.21gamma">
+    android:versionName="0.9.21delta">
 
-    <uses-sdk 
-        android:minSdkVersion="12"
-        android:targetSdkVersion="16"/>
 
     <uses-feature android:name="android.hardware.usb.host" />
 
-    <!-- <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> -->
-   
    <application
         tools:replace="android:label"
         android:icon="@drawable/nprlabslogo"
@@ -21,18 +15,12 @@
         android:theme="@android:style/Theme.Holo"
         android:logo="@drawable/nprlabslogo">
 
-       <!-- This is our Broadcast Receiver for the incoming intents from the Usb Manager -->
-       <receiver android:name="org.nprlabs.nipperone.main.MyBroadcastReceiver" android:enabled="true">
-           <intent-filter>
-               <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
-               <action android:name="android.hardware.usb.action.USB_DEVICE_DETACHED" />
-               <action android:name="org.prss.nprlabs.nipperonealerter.USBPERMISSION" />
-           </intent-filter>
-       </receiver>
-        
+        <service android:name="org.nprlabs.nipperone.main.MyService"></service>
+
+
         <!-- Our main activity for the alerting and interface to the NipperOne receiver -->  
         <activity
-            android:name="org.nprlabs.nipperone.main.NipperOneAndroid"
+            android:name="org.nprlabs.nipperone.main.NipperActivity"
             android:screenOrientation="landscape"
             android:launchMode="singleInstance" >
             
@@ -42,6 +30,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/device_filter" />
         </activity>
         
         <!-- This is the bulk of the preference activity -->

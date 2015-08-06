@@ -1,23 +1,6 @@
 package org.nprlabs.nipperone.main;
 
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.content.res.Resources;
-import android.os.Build;
-import android.util.Log;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.hoho.android.usbserial.driver.UsbSerialDriver;
-
-import org.nprlabs.nipperone.framework.Message;
-import org.nprlabs.nipperone.framework.NipperConstants;
-import org.prss.nprlabs.nipperonealerter.R;
-
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
+import org.nprlabs.nipperone.framework.Alert;
 
 
 /**
@@ -26,7 +9,7 @@ import java.util.Date;
  * @version summer 2015
  *
  */
-public class MessageImpl implements Message {
+public class AlertImpl implements Alert {
 
     private String TAG = "NipperOneAlerter";
     
@@ -57,16 +40,16 @@ public class MessageImpl implements Message {
 
 
     //constructor
-    public MessageImpl() {
+    public AlertImpl() {
         // TODO Auto-generated constructor stub
     }
-    public MessageImpl(String eas_event, String eas_action){
+    public AlertImpl(String eas_event, String eas_action){
         this.Event = eas_event;
         this.Action = eas_action;
     }
         
     //constructor
-    public MessageImpl(int id, String eas_event, String eas_action) {
+    public AlertImpl(int id, String eas_event, String eas_action) {
         this.id = id;
         this.Event = eas_event;
         this.Action = eas_action;

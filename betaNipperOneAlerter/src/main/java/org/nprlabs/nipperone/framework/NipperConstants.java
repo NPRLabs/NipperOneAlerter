@@ -1,8 +1,12 @@
 package org.nprlabs.nipperone.framework;
 
 import android.hardware.usb.UsbManager;
+import android.widget.TextView;
 
-import org.nprlabs.nipperone.main.NipperOneAndroid;
+import com.hoho.android.usbserial.driver.UsbSerialDriver;
+
+import org.nprlabs.nipperone.main.NipperActivity;
+import org.nprlabs.nipperone.main.Receiver;
 
 public class NipperConstants {
     
@@ -43,6 +47,14 @@ public class NipperConstants {
     // 0xED (-19 unsigned) in ReturnType indicates a Notification message
     public static final byte receiverReturnTypeNotification = -19;
 
+    public static boolean HaveSetAlarmScreen = false;
+    public static boolean isAlarm = false;
+    public static boolean expectingMoreAlertText = false;
+    public static String versionNipperOneReceiver = "unknown";
+    public static DatabaseHandler dbHandler;
     public static UsbManager mUsbManager;
+    public static Receiver myReceiver = new Receiver();
+    public static boolean isActivityRunning = false;
+    public static boolean receiverConnected = false;
 
 }

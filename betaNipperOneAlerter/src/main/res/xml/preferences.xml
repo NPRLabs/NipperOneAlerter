@@ -6,7 +6,7 @@
        <PreferenceScreen
         android:key="fips_preference"   
 	    android:title="Set your location so you will receive alerts in your area"
-	    android:summary="The NipperOne receiver can recognize alert messages targeted for your county or parish, but you must configure the receiver with your current state and county/parish">
+	    android:summary="The NipperOne receiver can recognize alert messages targeted for your county, but you must configure the receiver with your current state and county/parish">
     	<intent android:action="org.prss.nprlabs.nipperonealerter.CitiesActivity"/>
     	</PreferenceScreen>
     </PreferenceCategory>

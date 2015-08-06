@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_title">Beta-NipperOne Alerter</string>
+    <string name="app_title">NipperOne Alerter</string>
     <string name="app_name">NipperOne Alerter</string>
-    <string name="title_activity_nipper_one">Beta-NipperOneActivity</string>
+    <string name="title_activity_nipper_one">NipperOneActivity</string>
     <string name="title_activity_nipper_one_alerter">NipperOneAlerterActivity</string>
     <!-- 
 		The following are the strings used in the Title Bar menu 
@@ -19,7 +19,6 @@
      -->
     <string name="defaultTextQuickScan">Scanning quickly for all radio stations</string>
     <string name="defaultTextSlowScan">Scanning for our local station</string>
-    <string name="defaultTextStationFound">Tuned: </string>
     <string name="disconnected_from_receiver">DISCONNECTED FROM RECEIVER</string>
     <string name="alert">ALERT</string>
     <string name="alarm">ALARM</string>
@@ -42,17 +41,8 @@
 
     <string name="title_intent_preference">Go to the Web site for this Accessible Alerting Project</string>
     <string name="summary_intent_preference">This opens a web browser and takes you to the NPR Labs web site for this project.</string>
-<!-- 
-    <string name="title_my_preference">My preference</string>
-    <string name="summary_my_preference">This is a custom counter preference</string>
-    <string name="title_advanced_toggle_preference">Haunted preference</string>
-    <string name="summary_on_advanced_toggle_preference">I\'m on! :)</string>
-    <string name="summary_off_advanced_toggle_preference">I\'m off! :(</string>
-    <string name="title_parent_preference">Parent checkbox preference</string>
-    <string name="summary_parent_preference">This is visually a parent</string>
-    <string name="title_child_preference">Child checkbox preference</string>
-    <string name="summary_child_preference">This is visually a child</string>
- -->    
+
+
     <!-- 
          END Strings used in our preferences fragment 
     -->
@@ -154,8 +144,25 @@
     <string name="wswString">"Winter Storm Watch"</string>
 
 
+    <!-- Strings That are displayed on the main activity page -->
     <string name="nprlabs">NPRLabs</string>
     <string name="btnMsgArchive">Message Archive</string>
-    <string name="btnSettingsSC">Settings Shortcut</string>
+    <string name="btn_recent_alert">Most Recent Alert</string>
+    <string name="btn_help_shortcut">Help Shortcut</string>
+    <string name="new_alert">Incoming Alert</string>
+    <string name="no_alert">No Incoming Alerts</string>
+    <string name="receiver_lbl">Radio Station</string>
+    <string name="station_frequency">Station Frequency</string>
+
+    <!-- Strings for the notification from the Service of a new Alert-->
+    <string name="service_label">Nipper One</string>
+    <string name="unviewed_alert">New Alert</string>
+    <string name="list_title">Message Archive</string>
+
+    <!-- Strings for the Message Archive dialog buttons-->
+    <string name="btn_ok">OK</string>
+    <string name="btn_view_full_alert">View Alert Message</string>
+    <string name="btn_view_more">View More</string>
+    <string name="btn_view_less">View Less</string>
 
 </resources>

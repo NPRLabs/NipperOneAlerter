@@ -37,6 +37,25 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="75dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Medium Text"
+            android:id="@+id/lbl_Action"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Medium Text"
+            android:id="@+id/txt_action"
+            android:textSize="@dimen/defaultFontSizetxtCurrentSel"
+            android:layout_below="@+id/lbl_Action"
+            android:layout_centerHorizontal="true" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -72,33 +91,11 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="Medium Text"
-            android:id="@+id/txt_action"
-            android:textSize="@dimen/defaultFontSizetxtCurrentSel"
-            android:layout_alignTop="@+id/txt_sentence_connector"
-            android:layout_toLeftOf="@+id/txt_sentence_connector" />
-
-        <TextView
-            android:id="@+id/txt_sentence_connector"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Medium Text"
-            android:layout_gravity="center_horizontal"
-            android:textSize="@dimen/defaultFontSizetxtCurrentSel"
-            android:layout_below="@+id/icon_alert"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="71dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Medium Text"
             android:id="@+id/txt_urgency"
             android:layout_gravity="right"
             android:textSize="@dimen/defaultFontSizetxtCurrentSel"
-            android:layout_alignTop="@+id/txt_sentence_connector"
-            android:layout_toRightOf="@+id/txt_sentence_connector" />
+            android:layout_below="@+id/txt_action"
+            android:layout_centerHorizontal="true" />
 
         <Button
             android:layout_width="wrap_content"
@@ -143,7 +140,7 @@
             android:text="Severity"
             android:id="@+id/lbl_severity"
             android:layout_centerVertical="true"
-            android:layout_alignRight="@+id/btn_ok" />
+            android:layout_centerHorizontal="true" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -161,7 +158,8 @@
             android:id="@+id/btn_ok"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="75dp" />
+            android:layout_marginBottom="75dp"
+            android:visibility="gone"/>
 
     </RelativeLayout>
 

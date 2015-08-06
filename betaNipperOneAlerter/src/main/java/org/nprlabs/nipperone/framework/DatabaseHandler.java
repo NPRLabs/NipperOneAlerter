@@ -5,14 +5,22 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
-import org.nprlabs.nipperone.main.MessageImpl;
+import org.nprlabs.nipperone.main.AlertImpl;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseHandler extends SQLiteOpenHelper{
 
+    private String TAG = "Database Handler";
+
+
+    /**
+     * This method needs to be called to get the existing database or create a new one.
+     * Therefore this needs to be called first.
+     */
     private static DatabaseHandler dbInstance;
 
     //All static variables
@@ -40,7 +48,15 @@ public class DatabaseHandler extends SQLiteOpenHelper{
     private static final String KEY_MESSAGE = "message";
 
 
-    public static synchronized DatabaseHandler getInstance(Context context){
+    /**
+     * This method is the classes "constructor". This is to be the only way to get the one and only
+     * instance of the database. Makes sure that all variables reference the same database.
+     *
+     * @param context The applications context
+     * @return The current/existing instance of the database. If it doesn't exist one is created which
+     * is then always returned
+     */
+    public static DatabaseHandler getInstance(Context context){
 
         if(dbInstance == null){
             dbInstance = new DatabaseHandler(context.getApplicationContext());
@@ -81,7 +97,9 @@ public class DatabaseHandler extends SQLiteOpenHelper{
      * adding a new message
      * @param msg the message to add to the database
      */
-    public void addMessage(MessageImpl msg){
+    public synchronized void addMessage(AlertImpl msg){
+        Log.d(TAG, msg.getEventString() + " was received and added to the database!");
+
         SQLiteDatabase db = this.getWritableDatabase();
         
         ContentValues values = new ContentValues();
@@ -110,16 +128,16 @@ public class DatabaseHandler extends SQLiteOpenHelper{
      * @param id
      * @return
      */
-    public MessageImpl getMessage(int id){
+    public synchronized AlertImpl getMessage(int id){
         SQLiteDatabase db = this.getReadableDatabase();
         
-        Cursor cursor = db.query(TABLE_MESSAGES, new String[] { KEY_ID, KEY_EAS_EVENT,
-                KEY_EAS_ACTION, KEY_EAS_CERTAINTY, KEY_EAS_SEVERITY, KEY_EAS_URGENCY, KEY_EAS_CATEGORY, KEY_EVT_DURATION, KEY_ORIGIN_TIME, KEY_MSG_ORIGINATOR, KEY_MSG_TYPE, KEY_MESSAGE},
-                KEY_ID + "=?", new String[] { String.valueOf(id) }, null, null, null, null);
+        Cursor cursor = db.query(TABLE_MESSAGES, new String[]{KEY_ID, KEY_EAS_EVENT,
+                        KEY_EAS_ACTION, KEY_EAS_CERTAINTY, KEY_EAS_SEVERITY, KEY_EAS_URGENCY, KEY_EAS_CATEGORY, KEY_EVT_DURATION, KEY_ORIGIN_TIME, KEY_MSG_ORIGINATOR, KEY_MSG_TYPE, KEY_MESSAGE},
+                KEY_ID + "=?", new String[]{String.valueOf(id)}, null, null, null, null);
         if(cursor != null)
             cursor.moveToFirst();
 
-        MessageImpl msg = new MessageImpl();
+        AlertImpl msg = new AlertImpl();
 
         msg.setId(Integer.parseInt(cursor.getString(0)));
         msg.setEvent(cursor.getString(1));
@@ -135,21 +153,27 @@ public class DatabaseHandler extends SQLiteOpenHelper{
         msg.setMsgString(cursor.getString(11));
 
         cursor.close();
+
+        Log.d(TAG, msg.getEventString() + " was retrieved FROM the database for display!");
         return msg;
     }
 
-    public List<MessageImpl> getAllMessages(){
-        List<MessageImpl> msgList = new ArrayList<MessageImpl>();
+    /**
+     * Returns all of the Messages in the database.
+     * @return A list of List<AlertImpl> with the oldest Alert first
+     */
+    public synchronized List<AlertImpl> getAllMessages(){
+        List<AlertImpl> msgList = new ArrayList<AlertImpl>();
         //Select all query
         String selectQuery = "SELECT * FROM " + TABLE_MESSAGES;
 
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         //looping through all rows and adding to list
         if(cursor.moveToFirst()){
             do{    
-                MessageImpl msg = new MessageImpl();
+                AlertImpl msg = new AlertImpl();
                 msg.setId(Integer.parseInt(cursor.getString(0)));
                 msg.setEvent(cursor.getString(1));
                 msg.setMsgAction(cursor.getString(2));
@@ -170,8 +194,46 @@ public class DatabaseHandler extends SQLiteOpenHelper{
         return msgList;
 
     }
+
+    /**
+     * Returns all of the Messages in the database, but in reverse order or the most recent
+     * entry first
+     * @return A list of List<AlertImpl> with the most recent entry first
+     */
+    public synchronized List<AlertImpl> getAllMessagesReverse(){
+        List<AlertImpl> msgList = new ArrayList<AlertImpl>();
+        //Select all query
+        String selectQuery = "SELECT * FROM " + TABLE_MESSAGES;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        //looping through all rows and adding to list
+        if(cursor.moveToLast()){
+            do{
+                AlertImpl msg = new AlertImpl();
+                msg.setId(Integer.parseInt(cursor.getString(0)));
+                msg.setEvent(cursor.getString(1));
+                msg.setMsgAction(cursor.getString(2));
+                msg.setMsgCertainty(cursor.getString(3));
+                msg.setMsgSeverity(cursor.getString(4));
+                msg.setMsgUrgency(cursor.getString(5));
+                msg.setMsgCategory(cursor.getString(6));
+                msg.setMsgDuration(cursor.getString(7));
+                msg.setMsgOrgTime(cursor.getString(8));
+                msg.setMsgOriginator(cursor.getString(9));
+                msg.setType(cursor.getString(10));
+                msg.setMsgString(cursor.getString(11));
+
+                msgList.add(msg);
+            }while(cursor.moveToPrevious());
+        }
+        cursor.close();
+        return msgList;
+
+    }
     
-    public int getMessageCount(){
+    public synchronized int getMessageCount(){
         String countQuery = "SELECT * FROM " + TABLE_MESSAGES;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(countQuery, null);
@@ -185,7 +247,7 @@ public class DatabaseHandler extends SQLiteOpenHelper{
      * @param msg
      * @return
      */
-    public int updateMessage(MessageImpl msg){
+    public synchronized int updateMessage(AlertImpl msg){
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -211,13 +273,13 @@ public class DatabaseHandler extends SQLiteOpenHelper{
     }
 
 
-    public void deleteMessage(MessageImpl msg){
+    public synchronized void deleteMessage(AlertImpl msg){
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_MESSAGES, KEY_ID + " = ?", new String[]{String.valueOf(msg.getId())});
         db.close();
     }
 
-    public boolean msgExists(int id){
+    public synchronized boolean msgExists(int id){
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_MESSAGES, new String[] { KEY_ID, KEY_EAS_EVENT,
                 KEY_EAS_ACTION}, KEY_ID + "=?", new String[] { String.valueOf(id) }, null, null, null, null);

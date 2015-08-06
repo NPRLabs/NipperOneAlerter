@@ -13,6 +13,6 @@
     <dimen name="defaultFontSizelblFIPShint">24sp</dimen>
     <dimen name="defaultFontSizetxtCurrentSel">30sp</dimen>
     <dimen name="smallFontSizetxtCurrentSel">20sp</dimen>
-    <dimen name="AlertTextSize">45sp</dimen>
+    <dimen name="AlertTextSize">42sp</dimen>
 
 </resources>
